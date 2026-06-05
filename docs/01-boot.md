@@ -18,3 +18,7 @@ If nothing valid is found after 0.5 seconds, fallthrough to USB boot and appear 
 
 First 256 bytes of flash image.
 
+## References
+
+- https://vanhunteradams.com/Pico/Bootloader/Boot_sequence.html
+
