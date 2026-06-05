@@ -52,6 +52,12 @@ From boot2's perspective, the 3rd stage is just application code. There is also 
 
 I think there is a VS-Code extension for Pico development, but I will using the command line (I use nvim btw). I am on a M1 Mac-Mini, and used [this document](https://vanhunteradams.com/Pico/Setup/PicoSetupMac.html) as a guide to installing the [Pico SDK](https://github.com/raspberrypi/pico-sdk).
 
+I ran into a few issues when trying to build:
+
+- The instructions mention `brew tap ArmMbed/homebrew-formulae` and `brew install arm-none-eabi-gcc`, but if you look at the [repo for this tap](https://github.com/armmbed/homebrew-formulae) it recommends `brew install --cask gcc-arm-embedded`
+- The `CMakeLists.txt` references `include(pico_sdk_import.cmake)` which is part of the [pico-sdk](https://github.com/raspberrypi/pico-sdk/blob/master/external/pico_sdk_import.cmake). I have the SDK installed at `~/Pico/pico-sdk` and added `export PICO_SDK_PATH=~/Pico/pico-sdk
+` to my zshrc but it couldn't find this file. I opted to copy it directly into the directory and that seemed to work
+
 ## References
 
 The lectures from V. Hunter Adams (Cornell) were incredibly valuable in learning this stuff.
