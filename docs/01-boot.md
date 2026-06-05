@@ -14,3 +14,7 @@ For flash boot, loads 256 byte second stage from SPI into SRAM5 and checks check
 
 If nothing valid is found after 0.5 seconds, fallthrough to USB boot and appear as mass storage device.
 
+## Second Stage: boot2
+
+First 256 bytes of flash image.
+
