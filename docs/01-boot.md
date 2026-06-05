@@ -21,4 +21,5 @@ First 256 bytes of flash image.
 ## References
 
 - https://vanhunteradams.com/Pico/Bootloader/Boot_sequence.html
-
+- https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008371-DS-1-rp2040-datasheet.pdf
+- https://pip-assets.raspberrypi.com/categories/686-raspberry-pi-pico-w/documents/RP-008312-DS-1-pico-w-datasheet.pdf
