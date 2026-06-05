@@ -8,18 +8,53 @@ ROM is 16kB starting at address 0x00000000 and has fixed contents (startup routi
 
 Core 0 executes this. Core 1 goes to sleep until woken by user code.
 
-If bootrom button is pressed (low), flash boot is skipped for USB mode bootcode.
+If bootrom button is pressed (low), flash boot is skipped for USB mode bootmode.
 
-For flash boot, loads 256 byte second stage from SPI into SRAM5 and checks checksum. If that passes, start executing the loaded code.
+For flash boot, loads 256 byte second stage (boot2) from SPI into SRAM5 and checks checksum. If that passes, start executing the loaded code.
 
 If nothing valid is found after 0.5 seconds, fallthrough to USB boot and appear as mass storage device.
 
+Since the 1st stage boot is baked into the chip itself, it should be more or less impossible to brick a pico.
+
 ## Second Stage: boot2
 
-First 256 bytes of flash image.
+First 256 bytes of flash image. This is what the 1st stage loads, checks, and branches to.
+
+The second stage mostly sets up high speed comms for the flash chip, and then branches to the reset_handler.
+
+Flash is not built into the RP2040, so it doesn't actually know what its talking to. The first stage basically tries a bunch of possible protocols and see if any work (checksum passes), and if not falls through to USB bootmode.
+
+boot2 is _exactly_ 256 bytes, with the last 4 bytes being the checksum. It will pad with 0's if it is smaller.
+
+## Reset Handler
+
+As mentioned above, boot2 will branch to a reset_handler function.
+
+Since RAM is volitile (doesn't persist through power cycles), this handler will load data/variables into RAM.
+
+Upon completion, the reset_handler will branch to user application code.
+
+## Linking
+
+Linker scripts arrange object files (`.o`) to the memory layout of the target chip.
+
+Specifies things like memory starting locations and sizes (Flash, RAM, etc).
+
+It also maps sections from the object files (`.text`, `.data`, etc).
+
+## Exercise 1: Get a boot2 built
+
+I am going to be building this [Serial_bootloader demo](https://github.com/vha3/Hunter-Adams-RP2040-Demos/tree/master/Bootloaders/Serial_bootloader). It uses C and CMake, but will be a good starting point to put the above into practice before getting into Zig. The idea of this demo is to create a custom 3rd stage bootloader that loads new app code over UART.
+
+From boot2's perspective, the 3rd stage is just application code. There is also a modified linker script for building new app code that offsets the 3rd stage's memory range as to not overwrite it in flash.
+
+### Setup
+
+I think there is a VS-Code extension for Pico development, but I will using the command line (I use nvim btw). I am on a M1 Mac-Mini, and used [this document](https://vanhunteradams.com/Pico/Setup/PicoSetupMac.html) as a guide to installing the [Pico SDK](https://github.com/raspberrypi/pico-sdk).
 
 ## References
 
-- https://vanhunteradams.com/Pico/Bootloader/Boot_sequence.html
-- https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008371-DS-1-rp2040-datasheet.pdf
-- https://pip-assets.raspberrypi.com/categories/686-raspberry-pi-pico-w/documents/RP-008312-DS-1-pico-w-datasheet.pdf
+The lectures from V. Hunter Adams (Cornell) were incredibly valuable in learning this stuff.
+
+In particular, the [RP2040 Boot Sequence](https://www.youtube.com/watch?v=MegBMmtmgHA) and [Custom Serial Bootloader](https://www.youtube.com/watch?v=j9aQkl5gTZI&t=2919s). Videos are also [documented on this website](https://vanhunteradams.com/Pico/Bootloader/Boot_sequence.html), and there is an associated [GitHub Repo](https://github.com/vha3/Hunter-Adams-RP2040-Demos).
+
