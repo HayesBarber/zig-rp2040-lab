@@ -18,5 +18,8 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    const installAssembly = b.addInstallBinFile(exe.getEmittedAsm(), "assembly.s");
+    b.getInstallStep().dependOn(&installAssembly.step);
+
     b.installArtifact(exe);
 }
