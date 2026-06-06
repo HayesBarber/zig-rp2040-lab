@@ -1,4 +1,4 @@
-export fn main() linksection(".boot.entry") callconv(.C) noreturn {
+export fn _start() linksection(".boot.entry") callconv(.c) noreturn {
     const PUT32 = struct {
         fn write(addr: u32, value: u32) void {
             @as(*volatile u32, @ptrFromInt(addr)).* = value;
