@@ -10,7 +10,7 @@ Core 0 executes this. Core 1 goes to sleep until woken by user code.
 
 If bootrom button is pressed (low), flash boot is skipped for USB mode bootmode.
 
-For flash boot, loads 256 byte second stage (boot2) from SPI into SRAM5 and checks checksum. If that passes, start executing the loaded code.
+For flash boot, loads 256 byte second stage (boot2) from SPI into SRAM and checks checksum. If that passes, start executing the loaded code.
 
 If nothing valid is found after 0.5 seconds, fallthrough to USB boot and appear as mass storage device.
 
@@ -137,6 +137,19 @@ make # adjust paths as needed for PICOSDK and PICOTOOL
 ```
 
 This will build the `.uf2`, and is flashed to the pico via the same process mentioned earlier.
+
+### Branch Confusion
+
+I was confused why `boot2` was branching to `0x20000101` and not `0x20000100`:
+
+```asm
+ldr r0, =0x20000101
+bx  r0
+```
+
+If `boot2` is exactly 256 bytes in in RAM, wouldn't that mean it is `0x20000000` - `0x200000FF`? Which would make the beginning of main `0x20000100`.
+
+From what I understand this _is the case_, and the trailing `1` in `0x20000001` is a bit set to signal Thumb state. The `ARM Cortex-M0+` processor (which the rp2040 uses) executes the Thumb instruction set.
 
 ## Exercise ???: _zig_ blinky
 
