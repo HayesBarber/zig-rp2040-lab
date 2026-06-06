@@ -4,7 +4,10 @@
 .cpu cortex-m0plus
 .thumb
 
+.global _start
+
 .section .boot2, "ax"
+_start:
     ldr r0, =XIP_SSI_SSIENR
     ldr r1, =0x00000000
     str r1, [r0]
@@ -37,7 +40,7 @@ _copyToRam:
     ;@ load 16 bytes from FLASH to RAM at a time
     ldmia r4!, {r0-r3}
     stmia r5!, {r0-r3}    
-    sub   r6, #16
+    subs  r6, r6, #16
     bne   _copyToRam
 
     ;@ Jump to the main function
