@@ -152,6 +152,10 @@ If `boot2` is exactly 256 bytes in in RAM, wouldn't that mean it occupies the ra
 
 From what I understand this _is the case_, and the trailing `1` in `0x20000001` is a bit set to signal Thumb state. The `ARM Cortex-M0+` processor (which the rp2040 uses) executes the Thumb instruction set.
 
+### Where is the Reset Handler?
+
+My understanding is that, due to the simplicity of the program, there is no need for one. In the pico-sdk's [exit_from_boot2.S](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2040/boot_stage2/asminclude/boot2_helpers/exit_from_boot2.S) it sets up the main stack pointer (MSP), and vectors to the reset handler. This is nicely explained in Hunter Adam's [RP2040 Boot Sequence](https://vanhunteradams.com/Pico/Bootloader/Boot_sequence.html#Exit-from-boot-stage-2) docs. But for this program there is essentially no variables, and it more-or-less cannot crash. As such, there is no reset handler or vector table.
+
 ## Exercise 3: _Zig_ blinky
 
 The goal will be to utilize the same second stage bootloader and linkers from exercise 2, but replace `blink_flash.c` with `blinky.zig` and `Makefile` with `build.zig`.
