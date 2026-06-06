@@ -98,6 +98,12 @@ To flash the pico, hold down BOOTSEL and plug it into your computer. It should s
 cp blinky.uf2 /Volumes/RPI-RP2
 ```
 
+## Exercise 2: _zig_ blinky
+
+I think my approach will be to interop with pico-sdk via Zig FFI.
+
+I found a repo, ["zig-pico-sdk"](https://github.com/gwagner/zig-pico-sdk), which seems like a good starting point
+
 ## References
 
 The lectures from V. Hunter Adams (Cornell) were incredibly valuable in learning this stuff.
