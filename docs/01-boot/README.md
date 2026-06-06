@@ -98,7 +98,47 @@ To flash the pico, hold down BOOTSEL and plug it into your computer. It should s
 cp blinky.uf2 /Volumes/RPI-RP2
 ```
 
-## Exercise 2: _zig_ blinky
+# ___Important Update___
+
+I decided to stop by Micro Center and pick up a normal pico (not a W). The wifi module introduces some complexity that is unnessary for this project. The primary example being controlling the onboard LED, which on the W requires going through the wifi module as compared to a simple GPIO update.
+
+## Exercise 2: blinky with no SDK
+
+The next exercise will be building blinky again, but this time with minimal SDK involvement. It's not that I don't plan on using the SDK with Zig, but after some research it appears to be quite involved to flush out all the includes that will allow you to `zig build` and use the pic-sdk with FFI. Now that I am more comfortable with the boot sequence and linking, this felt like a good next step. This will still use C, but hopefully after this step there will be a ~direct Zig equivalent.
+
+This exercise will be using this [RPi Pico Baremetal project](https://github.com/carlosftm/RPi-Pico-Baremetal). In particular the [02_Flash_2_SRAM_SDK](https://github.com/carlosftm/RPi-Pico-Baremetal/tree/main/02_Flash_2_SRAM_SDK) example.
+
+If you look into that directory, you will see the following:
+
+- `boot2.s`
+  - The assembly for the second stage bootloader
+  - Initilizes flash, copies program from flash to RAM, and branches to it
+- `memmap_boot2.ld`
+  - Linker script for `boot2.s`
+- `blink_flash.c`
+  - The blinky C program
+  - Uses raw memory address to toggle LED
+  - The `main()` function signiture is kinda funky. It defines `section( ".boot.entry" )` that is later utilized by the linker. This will essentially allow for us to put the function at a specified known location in memory and branch to it (which can be seen at the bottom of `_copyToRam` in the `boot2.s` assembly)
+- `memmap.ld`
+  - Linker script for `blink_flash.c`
+  - Lays out `boot2` and `boot.entry` in memory right next to each other
+  - Asserts that `boot2` is 256 bytes, which is required by the rp2040
+- `Makefile`
+  - Builds and links
+  - Builds the `.uf2` using picotool
+  - Only uses the pico-sdk to `pad_checksum` for `boot2`
+
+You can build this example as follows (note that you may need to adjust the `PICOSDK` and `PICOTOOL` paths in the `Makefile`):
+
+```bash
+git clone https://github.com/carlosftm/RPi-Pico-Baremetal.git
+cd RPi-Pico-Baremetal/02_Flash_2_SRAM_SDK
+make # adjust paths as needed for PICOSDK and PICOTOOL
+```
+
+This will build the `.uf2`, and is flashed to the pico via the same process mentioned earlier.
+
+## Exercise ???: _zig_ blinky
 
 I think my approach will be to interop with pico-sdk via Zig FFI.
 
