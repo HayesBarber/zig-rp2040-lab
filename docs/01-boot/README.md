@@ -42,9 +42,9 @@ Specifies things like memory starting locations and sizes (Flash, RAM, etc).
 
 It also maps sections from the object files (`.text`, `.data`, etc).
 
-## Exercise 1: Get a boot2 blinky built
+## Exercise 1: blinky
 
-I am going to basing off this [Serial_bootloader demo](https://github.com/vha3/Hunter-Adams-RP2040-Demos/tree/master/Bootloaders/Serial_bootloader). It uses C and CMake, but will be a good starting point to put the above into practice before getting into Zig. The idea of this demo is to create a custom 3rd stage bootloader that loads new app code over UART. There is also a modified linker script for building new app code that offsets the 3rd stage's memory range as to not overwrite it in flash. I am mainly using it as a starting point to build a blinky program, and won't be using and 3rd stage stuff.
+I looked at this [Serial_bootloader demo](https://github.com/vha3/Hunter-Adams-RP2040-Demos/tree/master/Bootloaders/Serial_bootloader) quite a bit. The idea of this demo is to create a custom 3rd stage bootloader that loads new app code over UART. There is also a modified linker script for building new app code that offsets the 3rd stage's memory range as to not overwrite it in flash. I am mainly using it as a reference to build a blinky program, along with [this blink.c example from rpi](https://github.com/raspberrypi/pico-examples/blob/master/blink/blink.c). These use C and CMake, but will be a good starting point for practice before getting into Zig.
 
 ### Setup
 
@@ -63,21 +63,19 @@ The target is to build a `.uf2` to flash to the pico. This can be achieved by th
 cd ./docs/01-boot/exercise-1/blinky
 mkdir build
 cd build
-cmake ..
+cmake -DPICO_BOARD=pico_w ..
 make
 ```
 
 If it worked, you should see `blinky.uf2` amongst other stuff:
 
 ```bash
-tree -L 1
+ls
 
 ./
-├── _deps/
 ├── CMakeFiles/
 ├── generated/
 ├── pico-sdk/
-├── picotool/
 ├── pioasm/
 ├── pioasm-install/
 ├── blinky.bin*
@@ -90,6 +88,14 @@ tree -L 1
 ├── CMakeCache.txt
 ├── Makefile
 └── pico_flash_region.ld
+```
+
+### Flashing
+
+To flash the pico, hold down BOOTSEL and plug it into your computer. It should show up as a storage device. From there copy the `.uf2` and it will automatically reboot.
+
+```bash
+cp blinky.uf2 /Volumes/RPI-RP2
 ```
 
 ## References
