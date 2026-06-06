@@ -111,8 +111,9 @@ This exercise will be using this [RPi Pico Baremetal project](https://github.com
 If you look into that directory, you will see the following:
 
 - `boot2.s`
-  - The assembly for the second stage bootloader
-  - Initilizes flash, copies program from flash to RAM, and branches to it
+  - Assembly for a custom second stage bootloader
+  - Initializes flash, copies app code from flash to RAM, and branches to it
+  - No `reset_hanlder` that I can see (I don't think it is necessary for this program)
 - `memmap_boot2.ld`
   - Linker script for `boot2.s`
 - `blink_flash.c`
@@ -147,11 +148,15 @@ ldr r0, =0x20000101
 bx  r0
 ```
 
-If `boot2` is exactly 256 bytes in in RAM, wouldn't that mean it is `0x20000000` - `0x200000FF`? Which would make the beginning of main `0x20000100`.
+If `boot2` is exactly 256 bytes in in RAM, wouldn't that mean it occupies the range `0x20000000` - `0x200000FF`? Which would make the beginning of main `0x20000100`?
 
 From what I understand this _is the case_, and the trailing `1` in `0x20000001` is a bit set to signal Thumb state. The `ARM Cortex-M0+` processor (which the rp2040 uses) executes the Thumb instruction set.
 
-## Exercise ???: _zig_ blinky
+## Exercise 3: _Zig_ blinky
+
+The goal will be to utilize the same second stage bootloader and linkers from exercise 2, but replace `blink_flash.c` with `blinky.zig` and `Makefile` with `build.zig`.
+
+## Exercise ???: Zig with pico-sdk
 
 I think my approach will be to interop with pico-sdk via Zig FFI.
 
