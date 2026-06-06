@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.13)
 include(pico_sdk_import.cmake)
 
 # give the project a name (anything you want)
-project(Serial_Bootloader C CXX ASM)
+project(blinky C CXX ASM)
 
 # initialize the sdk
 pico_sdk_init()
@@ -16,14 +16,14 @@ add_compile_options(-Wall
         -Wno-maybe-uninitialized
         -Os)
 
-add_executable(Serial_Bootloader)
+add_executable(blinky)
 
-target_sources(Serial_Bootloader PRIVATE bootloader.c)
+target_sources(blinky PRIVATE bootloader.c)
 
-pico_set_linker_script(Serial_Bootloader ${CMAKE_CURRENT_SOURCE_DIR}/bootloader_memmap.ld)
+pico_set_linker_script(blinky ${CMAKE_CURRENT_SOURCE_DIR}/bootloader_memmap.ld)
 
 # Pull in our pico_stdlib which pulls in commonly used features
-target_link_libraries(Serial_Bootloader pico_stdlib pico_bootsel_via_double_reset hardware_dma hardware_uart hardware_flash hardware_watchdog hardware_pwm)
+target_link_libraries(blinky pico_stdlib pico_bootsel_via_double_reset hardware_dma hardware_uart hardware_flash hardware_watchdog hardware_pwm)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(Serial_Bootloader)
+pico_add_extra_outputs(blinky)

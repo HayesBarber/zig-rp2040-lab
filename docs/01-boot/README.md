@@ -42,11 +42,9 @@ Specifies things like memory starting locations and sizes (Flash, RAM, etc).
 
 It also maps sections from the object files (`.text`, `.data`, etc).
 
-## Exercise 1: Get a boot2 built
+## Exercise 1: Get a boot2 blinky built
 
-I am going to be building this [Serial_bootloader demo](https://github.com/vha3/Hunter-Adams-RP2040-Demos/tree/master/Bootloaders/Serial_bootloader). It uses C and CMake, but will be a good starting point to put the above into practice before getting into Zig. The idea of this demo is to create a custom 3rd stage bootloader that loads new app code over UART.
-
-From boot2's perspective, the 3rd stage is just application code. There is also a modified linker script for building new app code that offsets the 3rd stage's memory range as to not overwrite it in flash.
+I am going to basing off this [Serial_bootloader demo](https://github.com/vha3/Hunter-Adams-RP2040-Demos/tree/master/Bootloaders/Serial_bootloader). It uses C and CMake, but will be a good starting point to put the above into practice before getting into Zig. The idea of this demo is to create a custom 3rd stage bootloader that loads new app code over UART. There is also a modified linker script for building new app code that offsets the 3rd stage's memory range as to not overwrite it in flash. I am mainly using it as a starting point to build a blinky program, and won't be using and 3rd stage stuff.
 
 ### Setup
 
@@ -55,8 +53,44 @@ I think there is a VS-Code extension for Pico development, but I will using the 
 I ran into a few issues when trying to build:
 
 - The instructions mention `brew tap ArmMbed/homebrew-formulae` and `brew install arm-none-eabi-gcc`, but if you look at the [repo for this tap](https://github.com/armmbed/homebrew-formulae) it recommends `brew install --cask gcc-arm-embedded`
-- The `CMakeLists.txt` references `include(pico_sdk_import.cmake)` which is part of the [pico-sdk](https://github.com/raspberrypi/pico-sdk/blob/master/external/pico_sdk_import.cmake). I have the SDK installed at `~/Pico/pico-sdk` and added `export PICO_SDK_PATH=~/Pico/pico-sdk
-` to my zshrc but it couldn't find this file. I opted to copy it directly into the directory and that seemed to work
+- The `CMakeLists.txt` references `include(pico_sdk_import.cmake)` which is part of the [pico-sdk](https://github.com/raspberrypi/pico-sdk/blob/master/external/pico_sdk_import.cmake). I have the SDK installed at `~/Pico/pico-sdk` and added `export PICO_SDK_PATH=~/Pico/pico-sdk` to my zshrc but it couldn't find this file. I opted to copy it directly into the directory and that seemed to work
+
+### Building
+
+The target is to build a `.uf2` to flash to the pico. This can be achieved by the following (from the root of the repo):
+
+```bash
+cd ./docs/01-boot/exercise-1/blinky
+mkdir build
+cd build
+cmake ..
+make
+```
+
+If it worked, you should see `blinky.uf2` amongst other stuff:
+
+```bash
+tree -L 1
+
+./
+├── _deps/
+├── CMakeFiles/
+├── generated/
+├── pico-sdk/
+├── picotool/
+├── pioasm/
+├── pioasm-install/
+├── blinky.bin*
+├── blinky.dis
+├── blinky.elf*
+├── blinky.elf.map
+├── blinky.hex
+├── blinky.uf2   <-- this one
+├── cmake_install.cmake
+├── CMakeCache.txt
+├── Makefile
+└── pico_flash_region.ld
+```
 
 ## References
 
