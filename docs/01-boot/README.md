@@ -164,6 +164,10 @@ Notice that in the [04_systick_isr example](https://github.com/carlosftm/RPi-Pic
 
 The goal will be to utilize the same second stage bootloader and linkers from exercise 2, but replace `blink_flash.c` with `blinky.zig` and `Makefile` with `build.zig`.
 
+```bash
+arm-none-eabi-objdump -D -b binary -m arm -M force-thumb zig-out/bin/boot2.bin > zig.s
+```
+
 ## Exercise ???: Zig with pico-sdk
 
 I think my approach will be to interop with pico-sdk via Zig FFI.
