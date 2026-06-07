@@ -70,6 +70,22 @@ pub fn build(b: *std.Build) void {
     const blinky_bin = boot2_elf.addObjCopy(.{
         .format = .bin,
     });
-    const install_bin = b.addInstallBinFile(blinky_bin.getOutput(), "blinky.bin");
-    b.getInstallStep().dependOn(&install_bin.step);
+
+    const uf2 = b.addSystemCommand(&.{
+        "picotool",
+        "uf2",
+        "convert",
+    });
+    uf2.addFileArg(blinky_bin.getOutput());
+    const uf2_file = uf2.addOutputFileArg("blinky.uf2");
+    uf2.addArg("-o");
+    uf2.addArg("0x10000000");
+    uf2.addArg("--family");
+    uf2.addArg("rp2040");
+
+    const install_uf2 = b.addInstallFile(
+        uf2_file,
+        "blinky.uf2",
+    );
+    b.getInstallStep().dependOn(&install_uf2.step);
 }
