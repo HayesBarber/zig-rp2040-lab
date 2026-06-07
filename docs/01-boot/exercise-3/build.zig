@@ -35,8 +35,20 @@ pub fn build(b: *std.Build) void {
     checksum.addFileArg(bin.getOutput());
     const patch_s = checksum.addOutputFileArg("boot2_patch.s");
 
-    const install_patch =
-        b.addInstallFile(patch_s, "boot2_patch.s");
+    const boot2_patch = b.addObject(.{
+        .name = "boot2_patch",
+        .root_module = b.createModule(.{
+            .root_source_file = null,
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    boot2_patch.root_module.addAssemblyFile(patch_s);
+
+    const install_patch = b.addInstallFile(
+        boot2_patch.getEmittedBin(),
+        "boot2_patch.o",
+    );
 
     b.getInstallStep().dependOn(&install_patch.step);
 }
