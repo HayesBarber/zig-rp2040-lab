@@ -45,27 +45,19 @@ pub fn build(b: *std.Build) void {
     });
     checksummed_object.root_module.addAssemblyFile(checksummed_assembly);
 
-    const blinky_object = b.addObject(.{
-        .name = "blinky_o",
+    const blinky_elf = b.addExecutable(.{
+        .name = "blinky",
         .root_module = b.createModule(.{
             .root_source_file = b.path("blinky.zig"),
             .target = target,
             .optimize = optimize,
+            .single_threaded = true,
         }),
     });
-    blinky_object.link_gc_sections = true;
-    blinky_object.root_module.single_threaded = true;
-
-    const blinky_elf = b.addExecutable(.{
-        .name = "blinky",
-        .root_module = b.createModule(.{
-            .root_source_file = null,
-            .target = target,
-            .optimize = optimize,
-        }),
-    });
+    blinky_elf.link_gc_sections = true;
+    blinky_elf.root_module.single_threaded = true;
+    blinky_elf.entry = .{ .symbol_name = "main" };
     blinky_elf.root_module.addObject(checksummed_object);
-    blinky_elf.root_module.addObject(blinky_object);
     blinky_elf.setLinkerScript(b.path("memmap.ld"));
     const blinky_bin = blinky_elf.addObjCopy(.{
         .format = .bin,

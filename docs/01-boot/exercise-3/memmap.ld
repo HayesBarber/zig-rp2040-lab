@@ -11,7 +11,7 @@ SECTIONS
         KEEP(*(.boot2))
         __boot2_end__ = .;
         KEEP(*(.boot.entry))
-        KEEP(*(.text*))
+        *(.text*)
         __end_code_ = .;
     } > RAM
             
