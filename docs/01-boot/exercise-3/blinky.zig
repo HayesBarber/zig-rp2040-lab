@@ -27,7 +27,9 @@ export fn main() linksection(".boot.entry") noreturn {
         // XOR GPIO
         PUT32.write(0xd000001c, (1 << 25));
 
-        var a: u32 = 20000;
-        while (a > 0) : (a -= 1) {}
+        var a: u32 = 200000;
+        while (a > 0) : (a -= 1) {
+            asm volatile ("" ::: .{ .memory = true });
+        }
     }
 }
