@@ -1,7 +1,7 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
-    const optimize = b.standardOptimizeOption(.{});
+    const optimize: std.builtin.OptimizeMode = .ReleaseSmall;
     const target = b.resolveTargetQuery(.{
         .cpu_arch = .thumb,
         .os_tag = .freestanding,
@@ -49,6 +49,21 @@ pub fn build(b: *std.Build) void {
         checksummed_object.getEmittedBin(),
         "boot2_patch.o",
     );
-
     b.getInstallStep().dependOn(&install_checksummed_object.step);
+
+    const blinky_object = b.addObject(.{
+        .name = "blinky",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("blinky.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    blinky_object.link_gc_sections = true;
+    blinky_object.root_module.single_threaded = true;
+    const install_blinky_object = b.addInstallFile(
+        blinky_object.getEmittedBin(),
+        "blinky.o",
+    );
+    b.getInstallStep().dependOn(&install_blinky_object.step);
 }
