@@ -54,8 +54,6 @@ pub fn build(b: *std.Build) void {
             .single_threaded = true,
         }),
     });
-    blinky_elf.link_gc_sections = true;
-    blinky_elf.root_module.single_threaded = true;
     blinky_elf.entry = .{ .symbol_name = "main" };
     blinky_elf.root_module.addObject(checksummed_object);
     blinky_elf.setLinkerScript(b.path("memmap.ld"));

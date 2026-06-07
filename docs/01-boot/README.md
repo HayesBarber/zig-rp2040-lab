@@ -177,6 +177,8 @@ picotool uf2 convert blink_flash.bin blink_flash.uf2 -o 0x10000000 --family rp20
 cp blink_flash.uf2 /Volumes/RPI-RP2
 ```
 
+> I added the `pad_checksum` executable from the pico-sdk to my path
+
 I had to make some small adjustments to the `boot2.s` assembly:
 
 - Added a `_start` label to satisfy the zig linker
@@ -188,6 +190,26 @@ This command was useful as an object dump to verify that the zig `.bin` was matc
 ```bash
 arm-none-eabi-objdump -D -b binary -m arm -M force-thumb zig-out/bin/boot2.bin > zig.s
 ```
+
+### Milestone 2: It blinks!
+
+The `build.zig` now does the full process of linking second stage bootloader with `blinky.zig`, and generating the `.uf2`. To make a build now all it takes is:
+
+```bash
+zig build
+cp zig-out/blinky.uf2 /Volumes/RPI-RP2
+```
+
+Some learnings / callouts:
+
+- `blinky_elf.entry = .{ .symbol_name = "main" };` to satisfy linker (same reason `_start` was added to `boot2`)
+- In `memmap.ld` changed `KEEP(*(.text*))` to `*(.text*)`
+  - With the `KEEP` the `.uf2` was ~257KB, without it it's ~1KB
+  - I think it allows zig build to do some garbage collection
+
+Originally I was following the [example's Makefile](https://github.com/carlosftm/RPi-Pico-Baremetal/blob/main/02_Flash_2_SRAM_SDK/Makefile) to a T to recreate it in `build.zig`. I did run into a weird issue where the final assembly that was getting produced did not have the blinky code from `blinky.zig`. I guess when creating the `blinky.o` object (via `b.addObject()`) things were not getting linked correctly. The fix was to not build a dedicated `blinky.o` built from `blinky.zig`, and instead point the `blinky_elf` to `blinky.zig`. I think under normal circumstances this woulnd't happen. Nonetheless it made `build.zig` more concise so I am not mad about it.
+
+> Used some AI tooling to help debug the above issues
 
 ## Exercise ???: Zig with pico-sdk
 
