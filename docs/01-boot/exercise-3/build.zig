@@ -23,6 +23,20 @@ pub fn build(b: *std.Build) void {
     const bin = exe.addObjCopy(.{
         .format = .bin,
     });
-    const install_bin = b.addInstallBinFile(bin.getOutput(), "boot2.bin");
-    b.getInstallStep().dependOn(&install_bin.step);
+
+    const checksum = b.addSystemCommand(&.{
+        "pad_checksum",
+        "-p",
+        "256",
+        "-s",
+        "0xFFFFFFFF",
+    });
+
+    checksum.addFileArg(bin.getOutput());
+    const patch_s = checksum.addOutputFileArg("boot2_patch.s");
+
+    const install_patch =
+        b.addInstallFile(patch_s, "boot2_patch.s");
+
+    b.getInstallStep().dependOn(&install_patch.step);
 }
