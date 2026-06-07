@@ -1,3 +1,7 @@
 .zig-cache/
 zig-out/
+build/
 *.o
+
+.DS_Store
+
