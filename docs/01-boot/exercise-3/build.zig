@@ -67,9 +67,11 @@ pub fn build(b: *std.Build) void {
     blinky_elf.root_module.addObject(checksummed_object);
     blinky_elf.root_module.addObject(blinky_object);
     blinky_elf.setLinkerScript(b.path("memmap.ld"));
-    const blinky_bin = boot2_elf.addObjCopy(.{
+    const blinky_bin = blinky_elf.addObjCopy(.{
         .format = .bin,
     });
+    const install_bin = b.addInstallBinFile(blinky_bin.getOutput(), "blinky.bin");
+    b.getInstallStep().dependOn(&install_bin.step);
 
     const uf2 = b.addSystemCommand(&.{
         "picotool",
