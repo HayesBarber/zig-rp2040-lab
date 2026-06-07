@@ -211,7 +211,7 @@ Originally I was following the [example's Makefile](https://github.com/carlosftm
 
 > Used some AI tooling to help debug the above issues
 
-## Exercise ???: Zig with pico-sdk
+## Next up: Zig with pico-sdk
 
 I think my approach will be to interop with pico-sdk via Zig FFI.
 
@@ -223,3 +223,4 @@ The lectures from V. Hunter Adams (Cornell) were incredibly valuable in learning
 
 In particular, the [RP2040 Boot Sequence](https://www.youtube.com/watch?v=MegBMmtmgHA) and [Custom Serial Bootloader](https://www.youtube.com/watch?v=j9aQkl5gTZI&t=2919s). Videos are also [documented on this website](https://vanhunteradams.com/Pico/Bootloader/Boot_sequence.html), and there is an associated [GitHub Repo](https://github.com/vha3/Hunter-Adams-RP2040-Demos).
 
+Additionally, the [RPi-Pico-Baremetal](https://github.com/carlosftm/RPi-Pico-Baremetal) project was clutch.
