@@ -9,7 +9,7 @@ pub fn build(b: *std.Build) void {
         .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m0plus },
     });
 
-    const exe = b.addExecutable(.{
+    const boot2_elf = b.addExecutable(.{
         .name = "boot2",
         .root_module = b.createModule(.{
             .root_source_file = null,
@@ -17,10 +17,9 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
-    exe.root_module.addAssemblyFile(b.path("boot2.s"));
-    exe.setLinkerScript(b.path("memmap_boot2.ld"));
-
-    const bin = exe.addObjCopy(.{
+    boot2_elf.root_module.addAssemblyFile(b.path("boot2.s"));
+    boot2_elf.setLinkerScript(b.path("memmap_boot2.ld"));
+    const boot2_bin = boot2_elf.addObjCopy(.{
         .format = .bin,
     });
 
@@ -33,10 +32,10 @@ pub fn build(b: *std.Build) void {
         "0xFFFFFFFF",
     });
 
-    checksum.addFileArg(bin.getOutput());
-    const patch_s = checksum.addOutputFileArg("boot2_patch.s");
+    checksum.addFileArg(boot2_bin.getOutput());
+    const checksummed_assembly = checksum.addOutputFileArg("boot2_patch.s");
 
-    const boot2_patch = b.addObject(.{
+    const checksummed_object = b.addObject(.{
         .name = "boot2_patch",
         .root_module = b.createModule(.{
             .root_source_file = null,
@@ -44,12 +43,12 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
-    boot2_patch.root_module.addAssemblyFile(patch_s);
+    checksummed_object.root_module.addAssemblyFile(checksummed_assembly);
 
-    const install_patch = b.addInstallFile(
-        boot2_patch.getEmittedBin(),
+    const install_checksummed_object = b.addInstallFile(
+        checksummed_object.getEmittedBin(),
         "boot2_patch.o",
     );
 
-    b.getInstallStep().dependOn(&install_patch.step);
+    b.getInstallStep().dependOn(&install_checksummed_object.step);
 }
