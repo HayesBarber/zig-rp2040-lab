@@ -36,7 +36,7 @@ pub fn build(b: *std.Build) void {
     const checksummed_assembly = checksum.addOutputFileArg("boot2_patch.s");
 
     const checksummed_object = b.addObject(.{
-        .name = "boot2_patch",
+        .name = "boot2_patch_o",
         .root_module = b.createModule(.{
             .root_source_file = null,
             .target = target,
@@ -45,14 +45,8 @@ pub fn build(b: *std.Build) void {
     });
     checksummed_object.root_module.addAssemblyFile(checksummed_assembly);
 
-    const install_checksummed_object = b.addInstallFile(
-        checksummed_object.getEmittedBin(),
-        "boot2_patch.o",
-    );
-    b.getInstallStep().dependOn(&install_checksummed_object.step);
-
     const blinky_object = b.addObject(.{
-        .name = "blinky",
+        .name = "blinky_o",
         .root_module = b.createModule(.{
             .root_source_file = b.path("blinky.zig"),
             .target = target,
@@ -61,9 +55,21 @@ pub fn build(b: *std.Build) void {
     });
     blinky_object.link_gc_sections = true;
     blinky_object.root_module.single_threaded = true;
-    const install_blinky_object = b.addInstallFile(
-        blinky_object.getEmittedBin(),
-        "blinky.o",
-    );
-    b.getInstallStep().dependOn(&install_blinky_object.step);
+
+    const blinky_elf = b.addExecutable(.{
+        .name = "blinky",
+        .root_module = b.createModule(.{
+            .root_source_file = null,
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    blinky_elf.root_module.addObject(checksummed_object);
+    blinky_elf.root_module.addObject(blinky_object);
+    blinky_elf.setLinkerScript(b.path("memmap.ld"));
+    const blinky_bin = boot2_elf.addObjCopy(.{
+        .format = .bin,
+    });
+    const install_bin = b.addInstallBinFile(blinky_bin.getOutput(), "blinky.bin");
+    b.getInstallStep().dependOn(&install_bin.step);
 }
