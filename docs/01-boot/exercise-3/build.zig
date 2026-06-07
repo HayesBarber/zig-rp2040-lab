@@ -24,6 +24,7 @@ pub fn build(b: *std.Build) void {
         .format = .bin,
     });
 
+    // todo bring this internal
     const checksum = b.addSystemCommand(&.{
         "pad_checksum",
         "-p",

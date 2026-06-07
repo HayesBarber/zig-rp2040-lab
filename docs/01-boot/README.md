@@ -164,6 +164,27 @@ Notice that in the [04_systick_isr example](https://github.com/carlosftm/RPi-Pic
 
 The goal will be to utilize the same second stage bootloader and linkers from exercise 2, but replace `blink_flash.c` with `blinky.zig` and `Makefile` with `build.zig`.
 
+### Milestone 1: Build the second stage bootloader with `zig build`
+
+I was able to get the padded and checksummed second stage bootloader `.o` file that successfully linked with the C blinky program. The procedure for building was the following:
+
+```bash
+zig build # builds zig-out/boot2_patch.o
+arm-none-eabi-gcc -mcpu=cortex-m0plus -ffreestanding -nostartfiles -g -O0 -fpic -mthumb -c /path/to/blink_flash.c -o blink_flash.o
+arm-none-eabi-ld -nostdlib -T memmap.ld zig-out/boot2_patch.o blink_flash.o -o blink_flash.elf
+arm-none-eabi-objcopy -O binary blink_flash.elf blink_flash.bin
+picotool uf2 convert blink_flash.bin blink_flash.uf2 -o 0x10000000 --family rp2040
+cp blink_flash.uf2 /Volumes/RPI-RP2
+```
+
+I had to make some small adjustments to the `boot2.s` assembly:
+
+- Added a `_start` label to satisfy the zig linker
+- In the `_copyToRam` procedure, changed `sub   r6, #16` to `subs  r6, r6, #16` as I was seeing `error: invalid instruction`
+  - Not sure why, maybe a Thumb architecture nuance
+
+This command was useful as an object dump to verify that the zig `.bin` was matching the make `.bin`:
+
 ```bash
 arm-none-eabi-objdump -D -b binary -m arm -M force-thumb zig-out/bin/boot2.bin > zig.s
 ```
