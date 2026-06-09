@@ -7,3 +7,5 @@ I think there two plausible approaches
 
 I think the latter would be easier. The `CMakeLists.txt` file could just call `zig build`.
 
+## Exercise 4: Zig blinky using the pico sdk
+
