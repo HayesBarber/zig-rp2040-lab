@@ -17,3 +17,13 @@ The benefit of this is that I can use the sdk's bootloader and reset handler.
 
 In `blinky.zig`, I use `sleep_ms` from the sdk by stubbing it as `extern`. This is probably not the best dev experience, and I got build errors when trying to call functions like [gpio_put](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_gpio/include/hardware/gpio.h#L1155-L1155) which are `static inline`. For this project it should be fine. The main thing I wanted was to use the bootloader and reset handler.
 
+To make a build and flash (working directory should be exercise-4):
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+cp blinky.uf2 /Volumes/RPI-RP2
+```
+
