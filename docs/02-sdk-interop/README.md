@@ -27,3 +27,19 @@ make
 cp blinky.uf2 /Volumes/RPI-RP2
 ```
 
+## Exercise 5: Print messages over USB
+
+I would also like to be able to print to the console of my dev machine while the pico is connected via USB. To my understanding the pico sdk has a `printf` implementation, so I will start there.
+
+---
+
+That turned out to be correct. `main.zig` defines printf as an `extern` function and that can be used to print over USB. 
+
+The output can be seen via:
+
+```bash
+cat /dev/cu.usbmodem12201
+```
+
+I did need to add `pico_enable_stdio_usb(hello-world 1)` to the `CMakeLists.txt` in order to see the device in `/dev/`
+
