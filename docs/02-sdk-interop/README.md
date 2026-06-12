@@ -52,7 +52,7 @@ It is kinda annoying to have to hold down the `BOOTSEL` button and disconnect/co
 Yes, `picotool` can do this. For example to reboot the device into bootsel mode:
 
 ```bash
-picotool reboot -fu
+picotool reboot -uf
 ```
 
 The `-f` is to force the reboot (since the device is likely not in bootsel mode already). And the `-u` asks the device to reboot into bootsel mode (as compared to application mode if this flag was ommmitted).
