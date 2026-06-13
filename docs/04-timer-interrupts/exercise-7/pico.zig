@@ -14,10 +14,14 @@ pub extern fn stdio_init_all() void;
 
 pub extern fn sleep_ms(ms: u32) void;
 
+pub extern fn clock_get_hz(clk_index: c_int) u32;
+
 //Rewrite of weak systick IRQ in crt0.s file
 export fn isr_systick() void {
     TICK_COUNTER += 1;
     printf("Hello timer!: %ld\n", TICK_COUNTER);
+    const clk_sys = 5; // clk_sys enum value in SDK
+    printf("clk_sys = %lu\n", clock_get_hz(clk_sys));
     toggleLED();
 }
 
