@@ -56,8 +56,9 @@ Both of these code snippets are manipulating the ARM Cortex-M0+ registers (start
 
 `SYST_CSR` uses 4 bit locations: `0`, `1`, `2`, and `16`. 
 
-- `Bit 0`: Enables (1) and disables (0)
+- `Bit 0`: Enables (1) and disables (0) the systick counter
 - `Bit 1`: Exception request enabled (1) or disabled (0)
+	- aka enable/disable the ISR
 - `Bit 2`: Systick clock source. Processor clock (1) or external reference (0)
 - `Bit 16`: 1 if timer counted to 0 the last time this bit was read
 
@@ -75,4 +76,6 @@ For initialization, bits `0`, `1`, and `2` are being set by the code snippets ab
 This value is counts down based on the clock cycle reference, and includes 0. So if you want the ISR to fire every N cycles, you would set `SYST_RVR` to N-1.
 
 The examples above are using different clock speed references. `systick_isr.c` is using a 12MHz reference versus a 125MHz reference in `non_blocking_timer.c`. As such, the `SYST_RVR` being set is based on the caclulation of clock speed to how often the interrupt should fire (1 second vs 1 millisecond).
+
+Why is it 24 bits? From a quick search it seems to be for efficiency purposes.
 
