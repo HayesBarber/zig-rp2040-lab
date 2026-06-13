@@ -79,3 +79,7 @@ The examples above are using different clock speed references. `systick_isr.c` i
 
 Why is it 24 bits? From a quick search it seems to be for efficiency purposes.
 
+---
+
+
+
