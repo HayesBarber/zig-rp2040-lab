@@ -5,9 +5,5 @@ export fn main() noreturn {
     pico.ledInit();
     pico.initSystick();
 
-    while (true) {
-        pico.printf("Hello timer!: %ld\n", pico.TICK_COUNTER);
-        pico.toggleLED();
-        pico.sleep_ms(500);
-    }
+    while (true) {}
 }

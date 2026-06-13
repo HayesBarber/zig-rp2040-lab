@@ -15,8 +15,10 @@ pub extern fn stdio_init_all() void;
 pub extern fn sleep_ms(ms: u32) void;
 
 //Rewrite of weak systick IRQ in crt0.s file
-pub fn isr_systick() void {
+export fn isr_systick() void {
     TICK_COUNTER += 1;
+    printf("Hello timer!: %ld\n", TICK_COUNTER);
+    toggleLED();
 }
 
 pub fn put32(addr: u32, value: u32) void {
