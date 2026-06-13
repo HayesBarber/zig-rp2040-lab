@@ -12,7 +12,7 @@ The goal will be to blink the onboard LED on a timer interrupt loop. Something l
 
 ### Systick or hardware timer?
 
-There is a few options for interrupt sources, namely using a systick or a hardware peripheral timer.
+There are a few options for interrupt sources, namely using a systick or a hardware peripheral timer.
 
 A systick is essentially built into the Cortex-M0+ itself, while a hardware peripheral would be vendor specific. From what I can tell, it doesn't necessarily matter as they both could serve as the interrupt source. The systick seems to be simpler, so I am leaning towards that.
 
