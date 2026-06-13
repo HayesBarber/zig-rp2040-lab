@@ -85,6 +85,8 @@ The `main.zig` file is straightforward. Initialize stdio, the LED, and systick b
 
 `pico.zig` contains the meat of this exercise. The two main functions for systick are `initSystick` and `isr_systick`. As mentioned above, we setup the `SYST_RVR` and `SYST_CSR` registers via their memory locations and bitmasks. And then `isr_systick` is exported to overwrite the weak link defined in the pico sdk (the same way it's done in [the example](https://github.com/Blimp01/pico_non_blocking_timer/blob/master/example/non_blocking_timer.c#L15)).
 
+Note how the systick ISR does not need to re-register the counter (it is multi-shot).
+
 I ran into two intersting scenarios:
 
 1. I initially forgot to export `isr_systick`
