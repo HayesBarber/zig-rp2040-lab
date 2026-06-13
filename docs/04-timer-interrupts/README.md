@@ -44,9 +44,9 @@ PUT32( CORTEX_SYST_CSR, ( 1 << 2 ) | ( 1 << 1 ) | ( 1 << 0 ) );  // source clock
 //non_blocking_timer.c
 void init_systick()
 { 
-	systick_hw->csr = 0; 	      //Disable 
-	systick_hw->rvr = 124999UL; //Standard System clock (125Mhz)/ (rvr value + 1) = 1ms 
-  systick_hw->csr = 0x7;      //Enable Systic, Enable Exceptions	
+	systick_hw->csr = 0; 	      //Disable
+	systick_hw->rvr = 124999UL; //Standard System clock (125Mhz)/ (rvr value + 1) = 1ms
+  systick_hw->csr = 0x7;      //Enable Systic, Enable Exceptions
 }
 ```
 
