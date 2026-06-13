@@ -28,7 +28,7 @@ I may also be able to use [exception_set_exclusive_handler](https://github.com/r
 
 ---
 
-There are two pieces of code to call out from the [bare metal example](https://github.com/carlosftm/RPi-Pico-Baremetal/blob/main/04_systick_isr/systick_isr.c#L117) and [non-blocking timer example](https://github.com/carlosftm/RPi-Pico-Baremetal/blob/main/04_systick_isr/systick_isr.c#L117) that are effectively doing the same thing with the systick initialization.
+There are two pieces of code to call out from the [bare metal example](https://github.com/carlosftm/RPi-Pico-Baremetal/blob/main/04_systick_isr/systick_isr.c#L117) and [non-blocking timer example](https://github.com/Blimp01/pico_non_blocking_timer/blob/master/example/non_blocking_timer.c#L8) that are effectively doing the same thing with the systick initialization.
 
 ```c
 // systick_isr.c
@@ -81,5 +81,16 @@ Why is it 24 bits? From a quick search it seems to be for efficiency purposes.
 
 ---
 
+The `main.zig` file is straightforward. Initialize stdio, the LED, and systick before looping forever.
+
+`pico.zig` contains the meat of this exercise. The two main functions for systick are `initSystick` and `isr_systick`. As mentioned above, we setup the `SYST_RVR` and `SYST_CSR` registers via their memory locations and bitmasks. And then `isr_systick` is exported to overwrite the weak link defined in the pico sdk (the same way it's done in [the example](https://github.com/Blimp01/pico_non_blocking_timer/blob/master/example/non_blocking_timer.c#L15)).
+
+I ran into two intersting scenarios:
+
+1. I initially forgot to export `isr_systick`
+	- This caused the program to hang. The reason being becuase the default ISR for systick is defined [as a breakpoint](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_crt0/crt0.S#L336-L336). So either I had the debugger hooked up and it was stopping there, or there was no debugger which probably leads to a fault of some sort.
+2. The LED was blinking faster than 1 second intervals
+	- Since the system clock is 125MHz, I figured that setting `SYST_RVR` to 125,000,000 made since as that would result in a 1 second interval. While that may be true, remember that `SYST_RVR` is a ___24 bit number___. 125 million is a 27 bit number, so the upper bits were likely disgarded leading to a faster blink rate.
+	- The fix? Use a 1ms interval and increment a counter. When that counter == 1000, blink.
 
 

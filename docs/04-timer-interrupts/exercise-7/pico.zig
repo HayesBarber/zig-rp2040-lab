@@ -16,18 +16,6 @@ pub extern fn sleep_ms(ms: u32) void;
 
 pub extern fn clock_get_hz(clk_index: c_int) u32;
 
-//Rewrite of weak systick IRQ in crt0.s file
-export fn isr_systick() void {
-    TICK_COUNTER += 1;
-    if (TICK_COUNTER == 1000) {
-        TICK_COUNTER = 0;
-        const clk_sys = 5; // clk_sys enum value in SDK
-        printf("clk_sys = %lu\n", clock_get_hz(clk_sys));
-        printf("RVR = %lu\n", get32(CORTEX_SYST_RVR));
-        toggleLED();
-    }
-}
-
 pub fn put32(addr: u32, value: u32) void {
     @as(*volatile u32, @ptrFromInt(addr)).* = value;
 }
@@ -59,4 +47,16 @@ pub fn ledInit() void {
 pub fn initSystick() void {
     put32(CORTEX_SYST_RVR, SYSTICK_RELOAD_VALUE);
     put32(CORTEX_SYST_CSR, SYSTICK_ENABLE_BITMASK);
+}
+
+//Rewrite of weak systick IRQ in crt0.s file
+export fn isr_systick() void {
+    TICK_COUNTER += 1;
+    if (TICK_COUNTER == 1000) {
+        TICK_COUNTER = 0;
+        const clk_sys = 5; // clk_sys enum value in SDK
+        printf("clk_sys = %lu\n", clock_get_hz(clk_sys));
+        printf("RVR = %lu\n", get32(CORTEX_SYST_RVR));
+        toggleLED();
+    }
 }
