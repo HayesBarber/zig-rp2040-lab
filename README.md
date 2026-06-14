@@ -4,8 +4,6 @@ The goal of this repo is to build a preemptive scheduler in Zig for a Raspberry 
 
 Zig version: 0.16.0
 
-Using a Pico due to it being ARM
-
 This is for learning purposes
 
 ### Datasheets
