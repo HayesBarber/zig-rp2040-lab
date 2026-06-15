@@ -5,5 +5,8 @@ export fn main() noreturn {
     pico.ledInit();
     pico.initSystick();
 
-    while (true) {}
+    while (true) {
+        pico.toggleLED();
+        pico.sleep_ms(100);
+    }
 }

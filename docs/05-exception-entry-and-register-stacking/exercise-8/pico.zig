@@ -54,9 +54,5 @@ export fn isr_systick() void {
     TICK_COUNTER += 1;
     if (TICK_COUNTER == 1000) {
         TICK_COUNTER = 0;
-        const clk_sys = 5; // clk_sys enum value in SDK
-        printf("clk_sys = %lu\n", clock_get_hz(clk_sys));
-        printf("RVR = %lu\n", get32(CORTEX_SYST_RVR));
-        toggleLED();
     }
 }
