@@ -4,7 +4,7 @@ For premptive scheduling, there is a need to save the state of the task being pr
 
 My current understanding is that you would push all the registers onto the stack, but this section aims to get a deeper understanding of this process.
 
-## Registers
+## ARM Cortex-M0+ Registers
 
 In the RP2040 datasheet, there is a section `2.4.3.5. Processor core registers summary` (page 72) which provides a table of the processors core register set. Note that this is an ARM thing rather than specific to the RP2040.
 
@@ -31,4 +31,12 @@ Unlike some of the previous registers we have worked with, these are not memory 
 - `PRIMASK`: prevents activation of all exceptions with configurable priority
 - `CONTROL`: Controls the stack used (MSP/PSP)
   - In an OS, the kernal would use MSP and threads the PSP
+
+On exception entry, the processor needs to know how to return to where it was before it was interrupted. To do this, it saves the ___minimal viable state___, which are registers `PSR`, `PC`, `LR`, `R12`, `R3`, `R2`, `R1`, and `R0`. This makes up an Exception Stack Frame, and the registers are pushed in that order (`R0` is top of the stack).
+
+This is important for our scheduler because it will be up to us to save other registers (like `R4-R11` and `SP`).
+
+## Exercise 8: Print registers in ISR
+
+To better understand the above, we will build off our SysTick ISR and have the function print some registers for us to try and make sense of.
 
