@@ -6,7 +6,6 @@ pub const LED_PIN = 25;
 pub const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms
 pub const SYSTICK_ENABLE_BITMASK = 0x7;
 pub const SYSTICK_DISABLE_BITMASK = 0x0;
-pub var TICK_COUNTER: u32 = 0;
 
 pub extern fn printf(fmt: [*:0]const u8, ...) void;
 
@@ -47,12 +46,4 @@ pub fn ledInit() void {
 pub fn initSystick() void {
     put32(CORTEX_SYST_RVR, SYSTICK_RELOAD_VALUE);
     put32(CORTEX_SYST_CSR, SYSTICK_ENABLE_BITMASK);
-}
-
-//Rewrite of weak systick IRQ in crt0.s file
-export fn isr_systick() void {
-    TICK_COUNTER += 1;
-    if (TICK_COUNTER == 1000) {
-        TICK_COUNTER = 0;
-    }
 }
