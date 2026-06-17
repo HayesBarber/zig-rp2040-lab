@@ -86,7 +86,6 @@ Which aligns with our blinky program that uses `sleep_ms`.
 
 The `EXC_RETURN=fffffff9` value is ARM saying to return from the exception in thread mode and to use the MSP. This value is kept in the link register for the exception and the hardware knows how to handle it when it is popped into the program counter on exception exit.
 
-
 ## References
 
 - https://dev.to/amanprasad/decoding-exception-entry-exit-on-arm-cortex-mx-5fmc
