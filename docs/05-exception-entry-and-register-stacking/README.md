@@ -89,4 +89,5 @@ The `EXC_RETURN=fffffff9` value is ARM saying to return from the exception in th
 ## References
 
 - https://dev.to/amanprasad/decoding-exception-entry-exit-on-arm-cortex-mx-5fmc
+- https://developer.arm.com/documentation/dui0662/b/The-Cortex-M0--Instruction-Set/Instruction-set-summary
 
