@@ -40,3 +40,54 @@ This is important for our scheduler because it will be up to us to save other re
 
 To better understand the above, we will build off our SysTick ISR and have the function print some registers for us to try and make sense of.
 
+---
+
+There are some interesting things happening in `main.zig`, lets break down the code and the output.
+
+Notice that `isr_systick` is now `callconv(.naked)`. This will tell zig to not have any function prologue or epilogue, which in this case is useful so that the registers are not manipulated before we can get them into a known location to inspect.
+
+The SysTick ISR is now raw assembly:
+
+```asm
+mrs r0, msp
+mov r1, lr
+ldr r2, =isr_systick_impl
+bx r2
+```
+
+1. `mrs r0, msp`: Move main stack pointer into `r0`
+> `mrs` moves from a special register to a general register
+2. `mov r1, lr`: Move the link register into `r1`
+3. `ldr r2, =isr_systick_impl`: Load the address of `isr_systick_impl` into `r2`
+4. `bx r2`: Branch to `r2` (aka `isr_systick_impl`)
+
+`r0` and `r1` will be the 2 args passed into `isr_systick_impl`, and represent the exception frame and exe_return values. The ISR implementation simply prints these values every second.
+
+Lets now examine the output:
+
+```txt
+r0=2000319c r1=00000000 r2=40054000 r3=d0000128 r12=00000000 lr=10001133 pc=10001174 xpsr=21000000 EXC_RETURN=fffffff9
+```
+
+The program counter (`pc=10001174`) is the instruction to return to after the ISR. We can confirm this address makes sense for our program by doing an objdump and searching for that address:
+
+```bash
+arm-none-eabi-objdump -D -m arm -M force-thumb stacking.elf > asm.s
+nvim asm.s
+```
+
+When searching for `10001174`, I see this line:
+
+```asm
+10001174:	e7e5      	b.n	10001142 <sleep_ms+0xae>
+```
+
+Which aligns with our blinky program that uses `sleep_ms`.
+
+The `EXC_RETURN=fffffff9` value is ARM saying to return from the exception in thread mode and to use the MSP.
+
+
+## References
+
+- https://dev.to/amanprasad/decoding-exception-entry-exit-on-arm-cortex-mx-5fmc
+

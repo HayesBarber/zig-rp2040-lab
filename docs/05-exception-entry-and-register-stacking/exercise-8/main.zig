@@ -17,7 +17,7 @@ export fn isr_systick_impl(frame: [*]const u32, exc_return: u32) void {
     TICK_COUNTER = 0;
 
     pico.printf(
-        "r0=%08x r1=%08x r2=%08x r3=%08x " ++ "r12=%08x lr=%08x pc=%08x xpsr=%08x EXC_RETURN=%08x\n",
+        "r0=%08x r1=%08x r2=%08x r3=%08x r12=%08x lr=%08x pc=%08x xpsr=%08x EXC_RETURN=%08x\n",
         frame[0],
         frame[1],
         frame[2],
