@@ -2,16 +2,22 @@ const pico = @import("pico.zig");
 
 var TICK_COUNTER: u32 = 0;
 
-pub fn initSystick() void {
+fn initSystick() void {
     pico.put32(pico.CORTEX_SYST_RVR, pico.SYSTICK_RELOAD_VALUE);
     pico.put32(pico.CORTEX_SYST_CSR, pico.SYSTICK_ENABLE_BITMASK);
 }
 
-pub fn setPendSVPriority() void {
+fn setPendSVPriority() void {
     var curr = pico.get32(pico.CORTEX_SHPR3);
     curr |= 0b11 << 22; // 0b11 (3) is lowest priority
     pico.put32(pico.CORTEX_SHPR3, curr);
 }
+
+inline fn setPendSVPending() void {
+    pico.put32(pico.CORTEX_ICSR, 1 << 28);
+}
+
+export fn isr_pendsv() void {}
 
 export fn isr_systick() void {
     TICK_COUNTER += 1;
