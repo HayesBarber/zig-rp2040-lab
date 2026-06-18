@@ -22,7 +22,7 @@ The pico sdk has a `add_alarm_in_ms` function, but it's `static inline` and I do
 
 For this to work, I will need to register an ISR (interrupt service routine, aka interrupt handler) with the systick to fire on some interval.
 
-The interrupt/exception number of systick is 15, and the ISR is defined in [crt0](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_crt0/crt0.S#L77-L77). According to [this github thread](https://github.com/raspberrypi/pico-examples/issues/532), it can be overriden ([example](https://github.com/Blimp01/pico_non_blocking_timer/blob/master/non_blocking_timer.c#L16)).
+The exception number of systick is 15, and the ISR is defined in [crt0](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_crt0/crt0.S#L77-L77). According to [this github thread](https://github.com/raspberrypi/pico-examples/issues/532), it can be overriden ([example](https://github.com/Blimp01/pico_non_blocking_timer/blob/master/non_blocking_timer.c#L16)).
 
 I may also be able to use [exception_set_exclusive_handler](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_exception/include/hardware/exception.h#L136-L136) from the pico sdk, which may be easier to define as `extern` in zig.
 
