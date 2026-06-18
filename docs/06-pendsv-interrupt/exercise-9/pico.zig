@@ -44,14 +44,3 @@ pub fn ledInit() void {
     // GPIO_OE
     put32(0xd0000020, (1 << 25));
 }
-
-pub fn initSystick() void {
-    put32(CORTEX_SYST_RVR, SYSTICK_RELOAD_VALUE);
-    put32(CORTEX_SYST_CSR, SYSTICK_ENABLE_BITMASK);
-}
-
-pub fn setPendSVPriority() void {
-    var curr = get32(CORTEX_SHPR3);
-    curr |= 0b11 << 22; // 0b11 (3) is lowest priority
-    put32(CORTEX_SHPR3, curr);
-}

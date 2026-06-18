@@ -16,3 +16,7 @@ In the [ARM docs](https://developer.arm.com/documentation/dui0497/a/the-cortex-m
 
 ## Exercise 9: Configure PendSV priority and trigger from SysTick
 
+Similar to what will happen in a context switch, lets write a program that sets PendSV as pending from the SysTick ISR. I would also like to confirm the priority of PendSV, so maybe we can print that in it's ISR.
+
+Just like SysTick, PendSV is defined as a weak link in [crt0.s](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_crt0/crt0.S#L335-L335), and thus can be overwritten.
+
