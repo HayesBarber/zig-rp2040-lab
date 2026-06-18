@@ -2,6 +2,8 @@ pub const GPIO_OUT_XOR = 0xd000001c;
 pub const CORTEX_BASE = 0xe0000000;
 pub const CORTEX_SYST_CSR = CORTEX_BASE + 0xe010;
 pub const CORTEX_SYST_RVR = CORTEX_BASE + 0xe014;
+pub const CORTEX_ICSR = CORTEX_BASE + 0xed04;
+pub const CORTEX_NVIC_IPR3 = CORTEX_BASE + 0xe40c;
 pub const LED_PIN = 25;
 pub const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms
 pub const SYSTICK_ENABLE_BITMASK = 0x7;
@@ -46,4 +48,10 @@ pub fn ledInit() void {
 pub fn initSystick() void {
     put32(CORTEX_SYST_RVR, SYSTICK_RELOAD_VALUE);
     put32(CORTEX_SYST_CSR, SYSTICK_ENABLE_BITMASK);
+}
+
+pub fn setPendSVPriority() void {
+    const curr = get32(CORTEX_NVIC_IPR3);
+    curr |= 0b11 << 22; // 3 is lowest priority
+    put32(CORTEX_NVIC_IPR3, curr);
 }
