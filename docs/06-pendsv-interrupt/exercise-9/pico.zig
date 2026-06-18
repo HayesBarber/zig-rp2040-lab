@@ -3,7 +3,7 @@ pub const CORTEX_BASE = 0xe0000000;
 pub const CORTEX_SYST_CSR = CORTEX_BASE + 0xe010;
 pub const CORTEX_SYST_RVR = CORTEX_BASE + 0xe014;
 pub const CORTEX_ICSR = CORTEX_BASE + 0xed04;
-pub const CORTEX_NVIC_IPR3 = CORTEX_BASE + 0xe40c;
+pub const CORTEX_SHPR3 = CORTEX_BASE + 0xed20;
 pub const LED_PIN = 25;
 pub const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms
 pub const SYSTICK_ENABLE_BITMASK = 0x7;
@@ -51,7 +51,7 @@ pub fn initSystick() void {
 }
 
 pub fn setPendSVPriority() void {
-    const curr = get32(CORTEX_NVIC_IPR3);
-    curr |= 0b11 << 22; // 3 is lowest priority
-    put32(CORTEX_NVIC_IPR3, curr);
+    var curr = get32(CORTEX_SHPR3);
+    curr |= 0b11 << 22; // 0b11 (3) is lowest priority
+    put32(CORTEX_SHPR3, curr);
 }

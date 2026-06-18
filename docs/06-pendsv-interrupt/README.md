@@ -6,7 +6,7 @@ PendSV is a software trigger exception. It can be triggered by the memory mapped
 
 Per the [ARM docs](https://developer.arm.com/documentation/107706/0100/System-exceptions/Pended-SVC---PendSV), PendSV is typically configured to have the lowest interrupt priority. Considering that a context switch is pure overhead, using the lowest priority allows other time sensitive operations to complete.
 
-The [exception number](https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-processor/exception-model/exception-types) of PendSV is 14, and setting the priority can be done via the memory mapped Interrupt Priority Registers (`NVIC_IPR[0:7]`). Specifically the `NVIC_IPR3` register which can assign priority to interrupt 14.
+The [exception number](https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-processor/exception-model/exception-types) of PendSV is 14, and setting the priority can be done via the memory mapped `SHPR3` register. Bits 23:22 are used to configure the priority, with `0b11` (3) being the lowest priority.
 
 ## Exercise 9: Configure PendSV priority and trigger from SysTick
 
