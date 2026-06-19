@@ -12,7 +12,7 @@ const uint32_t cmd_sequence[] = {0, 0, 1, (uintptr_t) vector_table, (uintptr_t) 
 
 Sending this to core 1 provides it with it's initial stack pointer, entry point, and vector table.
 
-The FIFO message queues reside in the Single-cycle IO block (SIO), which memory mapped within the `IOPORT` space (0xd0000000-0xdfffffff).
+The FIFO message queues reside in the Single-cycle IO block (SIO), which is memory mapped within the `IOPORT` space (0xd0000000-0xdfffffff).
 
 Section `2.3.1. SIO` (page 27) of the datasheet has a good diagram on the archetecture, and section `2.3.1.4. Inter-processor FIFOs (Mailboxes)` (page 31) gives more details around using the message queues.
 
@@ -22,4 +22,6 @@ Cores write outgoing data by writing to `FIFO_WR`, and read incoming data by rea
 - `FIFO_ST`: Offset 0x050
 - `FIFO_WR`: Offset 0x054
 - `FIFO_RD`: Offset 0x058
+
+The pico sdk is essentially writing to these locations, and using `__sev` and `__wfe` to signal/block.
 
