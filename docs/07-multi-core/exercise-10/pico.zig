@@ -1,0 +1,46 @@
+pub const GPIO_OUT_XOR = 0xd000001c;
+pub const CORTEX_BASE = 0xe0000000;
+pub const CORTEX_SYST_CSR = CORTEX_BASE + 0xe010;
+pub const CORTEX_SYST_RVR = CORTEX_BASE + 0xe014;
+pub const CORTEX_ICSR = CORTEX_BASE + 0xed04;
+pub const CORTEX_SHPR3 = CORTEX_BASE + 0xed20;
+pub const LED_PIN = 25;
+pub const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms
+pub const SYSTICK_ENABLE_BITMASK = 0x7;
+pub const SYSTICK_DISABLE_BITMASK = 0x0;
+
+pub extern fn printf(fmt: [*:0]const u8, ...) void;
+
+pub extern fn stdio_init_all() void;
+
+pub extern fn sleep_ms(ms: u32) void;
+
+pub extern fn clock_get_hz(clk_index: c_int) u32;
+
+pub fn put32(addr: u32, value: u32) void {
+    @as(*volatile u32, @ptrFromInt(addr)).* = value;
+}
+
+pub fn get32(addr: u32) u32 {
+    return @as(*volatile u32, @ptrFromInt(addr)).*;
+}
+
+pub fn toggleGPIO(comptime pin: u8) void {
+    const mask = 1 << pin;
+    put32(GPIO_OUT_XOR, mask);
+}
+
+pub fn toggleLED() void {
+    toggleGPIO(LED_PIN);
+}
+
+pub fn ledInit() void {
+    // IO BANK
+    put32(0x4000f000, (1 << 5));
+    // Reset done?
+    while ((get32(0x4000c008) & (1 << 5)) == 0) {}
+    // IO PAD = FUNC 5 (GPIO)
+    put32(0x400140cc, 0x05);
+    // GPIO_OE
+    put32(0xd0000020, (1 << 25));
+}

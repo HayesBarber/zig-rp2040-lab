@@ -31,3 +31,7 @@ Note that the sdk also [disables the FIFO IRQ](https://github.com/raspberrypi/pi
 
 `SIO_IRQ_PROC0` and `SIO_IRQ_PROC1` are the interrupts for FIFO (15 and 16 respectively), and can be seen in section `2.3.2. Interrupts` (page 60) or in the sdk's [irq.h](https://github.com/raspberrypi/pico-sdk/blob/master/src/host/hardware_irq/include/hardware/irq.h#L81-L82).
 
+## Excersise 10: Multi-core Blinky
+
+The goal will be to write a program in which one core blinks the LED, and the other prints.
+
