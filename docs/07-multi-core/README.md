@@ -10,7 +10,7 @@ There is some C code in the datasheet to demonstrate the procedure, which essent
 const uint32_t cmd_sequence[] = {0, 0, 1, (uintptr_t) vector_table, (uintptr_t) sp, (uintptr_t) entry};
 ```
 
-Sending this to core 1 provides it with it's initial stack pointer, entry point, and vector table.
+Sending this to core 1 provides it with it's initial stack pointer, entry point, and vector table. Not sure what the leading 0,0,1 does, potentially a magic sequence to ensure cores are syncronized.
 
 The FIFO message queues reside in the Single-cycle IO block (SIO), which is memory mapped within the `IOPORT` space (0xd0000000-0xdfffffff).
 
@@ -18,10 +18,16 @@ Section `2.3.1. SIO` (page 27) of the datasheet has a good diagram on the archet
 
 Cores write outgoing data by writing to `FIFO_WR`, and read incoming data by reading `FIFO_RD`. There is also a `FIFO_ST` register for status signals.
 
+SIO registers can be found in section `2.3.1.7. List of Registers` (page 42) of the datasheet.
+
 - `SIO` Base: 0xd0000000
 - `FIFO_ST`: Offset 0x050
 - `FIFO_WR`: Offset 0x054
 - `FIFO_RD`: Offset 0x058
 
-The pico sdk is essentially writing/reading to these memory locations, and using `sev` and `wfe` to signal/block.
+The pico sdk is essentially writing/reading to these memory locations, and using [sev](https://developer.arm.com/documentation/dui0489/i/arm-and-thumb-instructions/sev) and [wfe](https://developer.arm.com/documentation/ddi0406/cb/Application-Level-Architecture/Instruction-Details/Alphabetical-list-of-instructions/WFE) to signal/block.
+
+Note that the sdk also [disables the FIFO IRQ](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_multicore/multicore.c#L182) before the handshake, and then re-enables it (if it was enabled). If the core had ths IRQ enabled, it would fire and the function performing the handshake would never get to see the response.
+
+`SIO_IRQ_PROC0` and `SIO_IRQ_PROC1` are the interrupts for FIFO, and can be seen in section `2.3.2. Interrupts` (page 60) or in the sdk's [irq.h](https://github.com/raspberrypi/pico-sdk/blob/master/src/host/hardware_irq/include/hardware/irq.h#L81-L82).
 
