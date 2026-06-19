@@ -29,5 +29,5 @@ The pico sdk is essentially writing/reading to these memory locations, and using
 
 Note that the sdk also [disables the FIFO IRQ](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_multicore/multicore.c#L182) before the handshake, and then re-enables it (if it was enabled). If the core had ths IRQ enabled, it would fire and the function performing the handshake would never get to see the response.
 
-`SIO_IRQ_PROC0` and `SIO_IRQ_PROC1` are the interrupts for FIFO, and can be seen in section `2.3.2. Interrupts` (page 60) or in the sdk's [irq.h](https://github.com/raspberrypi/pico-sdk/blob/master/src/host/hardware_irq/include/hardware/irq.h#L81-L82).
+`SIO_IRQ_PROC0` and `SIO_IRQ_PROC1` are the interrupts for FIFO (15 and 16 respectively), and can be seen in section `2.3.2. Interrupts` (page 60) or in the sdk's [irq.h](https://github.com/raspberrypi/pico-sdk/blob/master/src/host/hardware_irq/include/hardware/irq.h#L81-L82).
 
