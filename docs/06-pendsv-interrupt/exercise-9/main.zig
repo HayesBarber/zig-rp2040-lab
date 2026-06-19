@@ -17,12 +17,16 @@ inline fn setPendSVPending() void {
     pico.put32(pico.CORTEX_ICSR, 1 << 28);
 }
 
-export fn isr_pendsv() void {}
+export fn isr_pendsv() void {
+    pico.printf("SHPR3 = 0x%08lx\n", pico.get32(pico.CORTEX_SHPR3));
+}
 
 export fn isr_systick() void {
     TICK_COUNTER += 1;
     if (TICK_COUNTER < 1000) return;
     TICK_COUNTER = 0;
+
+    setPendSVPending();
 }
 
 export fn main() noreturn {
