@@ -20,3 +20,23 @@ Similar to what will happen in a context switch, lets write a program that sets 
 
 Just like SysTick, PendSV is defined as a weak link in [crt0.s](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_crt0/crt0.S#L335-L335), and thus can be overridden.
 
+---
+
+The program in `main.zig` does the normal setup done in previous exercises for SysTick, but now also sets the PendSV Priority to the lowest priority of 3.
+
+In the `isr_systick` ISR, after a second has ellapsed, we set PendSV to pending by setting the 28th bit in `ICSR`. This will cause the `isr_pendsv` ISR to run after all other higher priority exceptions have run. 
+
+Inside the `isr_pendsv` ISR we print the value of the `SHPR3` register, and get the following value:
+
+```txt
+SHPR3 = 0x00c00000
+```
+
+Converted to 32 bit binary:
+
+```txt
+00000000110000000000000000000000
+```
+
+We can see that bits 23:22 are set, which confirms PendSV is at priority 3.
+
