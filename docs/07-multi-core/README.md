@@ -23,5 +23,5 @@ Cores write outgoing data by writing to `FIFO_WR`, and read incoming data by rea
 - `FIFO_WR`: Offset 0x054
 - `FIFO_RD`: Offset 0x058
 
-The pico sdk is essentially writing to these locations, and using `__sev` and `__wfe` to signal/block.
+The pico sdk is essentially writing/reading to these memory locations, and using `sev` and `wfe` to signal/block.
 
