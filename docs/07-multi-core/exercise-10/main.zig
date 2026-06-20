@@ -2,7 +2,7 @@ const pico = @import("pico.zig");
 
 fn core1Entry() callconv(.c) void {
     while (true) {
-        pico.printf("Hello from core 1");
+        pico.printf("Hello from core 1\n");
         pico.sleep_ms(1000);
     }
 }

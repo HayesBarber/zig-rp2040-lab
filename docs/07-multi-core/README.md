@@ -37,3 +37,9 @@ Note that the function one would likely call when using the sdk is [multicore_la
 
 The goal will be to write a program in which one core blinks the LED, and the other prints.
 
+---
+
+I opted to use the pico sdk function instead of re-implementing it in pure zig, so the program is quite simple. Still had some learnings:
+
+- I needed to include `pico_multicore` in the `CMakeLists.txt` to include the multicore functionality
+- Since the `multicore_launch_core1` function is defined as extern and takes a function pointer, Zig requires a calling convention (e.g. `callconv(.c)`)
