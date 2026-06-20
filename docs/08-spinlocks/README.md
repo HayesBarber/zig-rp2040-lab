@@ -26,3 +26,5 @@ Considering that the synchronization mechanisms provided by the pico sdk have th
 
 I am leaning towards option 3. I didn't do this before as it seems tricky, but it may be worth figuring out.
 
+In the Zig docs for 0.16, it states the [cImport is deprecated](https://ziglang.org/download/0.16.0/release-notes.html#cImport-Moving-to-Build-System) in favor of moving it to the build system.
+
