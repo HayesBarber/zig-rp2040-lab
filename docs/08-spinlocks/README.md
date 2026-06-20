@@ -10,3 +10,19 @@ As the name implies, software may "spin" on the lock while trying to claim it. T
 
 The pico sdk offers [mutexs](https://github.com/raspberrypi/pico-sdk/blob/master/src/common/pico_sync/include/pico/mutex.h) and [semaphores](https://github.com/raspberrypi/pico-sdk/blob/master/src/common/pico_sync/include/pico/sem.h). Notice that the [spin_lock_blocking](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_sync_spin_lock/include/hardware/sync/spin_lock.h#L301) function will disable interrupts before aquiring the lock. One could imagine a scenario where application code has obtained a lock, gets interrupted, and the ISR wants to obtain the same lock...
 
+## Fork in the road
+
+Considering that the synchronization mechanisms provided by the pico sdk have their own structs and whatnot, defining that all as extern in Zig may be a hassle. I think there are a few options:
+
+1. Pure Zig spinlocks
+  - Use memory mapped locations as done if previous exercises
+  - Simple
+  - Ineffecient to use for the actual scheduler? Should be a short critical section I would guess
+2. Define sdk functions as extern and manually define C compatible structs
+  - Kinda tedious
+3. Get FFI working for the SDK
+  - Add the necessary headers to the `build.zig` and be able to use the translation
+  - Could limit to only the synchronization includes
+
+I am leaning towards option 3. I didn't do this before as it seems tricky, but it may be worth figuring out.
+
