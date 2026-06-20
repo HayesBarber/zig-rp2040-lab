@@ -27,7 +27,7 @@ target_sources(multi-core-blinky PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/zig-out/main.o
 )
 
-target_link_libraries(multi-core-blinky pico_stdlib)
+target_link_libraries(multi-core-blinky pico_stdlib pico_multicore)
 
 pico_enable_stdio_usb(multi-core-blinky 1)
 
