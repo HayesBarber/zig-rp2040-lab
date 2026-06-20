@@ -33,11 +33,12 @@ In the Zig docs for 0.16, it states the [cImport is deprecated](https://ziglang.
 I was able to seemingly get the include paths through trial and error:
 
 ```c
-//c.h
+// c.h
 #include pico/sync.h
 ```
 
 ```zig
+// build.zig
 const translate_c = b.addTranslateC(.{
     .root_source_file = b.path("c.h"),
     .target = target,
