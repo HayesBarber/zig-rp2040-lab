@@ -1,0 +1,12 @@
+# 08 - Spinlocks
+
+While I am still not 100% sure how things will end up, I would imagine I will need some form of synchronization between cores. The RP2040 has 32 hardware spinlocks that can be used for mutual exclusion.
+
+The datasheet has a `2.3.1.3. Hardware Spinlocks` section (page 30) documents that the spinlocks are memory mapped in the SIO registers. Registers are `SPINLOCK0`..`SPINLOCK31` with offsets `0x100, 0x104, …, 0x178, 0x17c`. Recall from the last chapter that the SIO Base is 0xd0000000.
+
+To claim a lock you read from the register. Reading a non-zero value means the lock was claimed. Both cores attempting to claim on the same cycle will result in core 0 winning. Writing any value will release the lock. The `SPINLOCK_ST` register can be used to observe the state of all locks.
+
+As the name implies, software may "spin" on the lock while trying to claim it. This is not efficient to do for a long time. Higher level synchronization mechanisms like mutexs and semaphores may use spinlocks to protect short critical sections.
+
+The pico sdk offers [mutexs](https://github.com/raspberrypi/pico-sdk/blob/master/src/common/pico_sync/include/pico/mutex.h) and [semaphores](https://github.com/raspberrypi/pico-sdk/blob/master/src/common/pico_sync/include/pico/sem.h). Notice that the [spin_lock_blocking](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_sync_spin_lock/include/hardware/sync/spin_lock.h#L301) function will disable interrupts before aquiring the lock. One could imagine a scenario where application code has obtained a lock, gets interrupted, and the ISR wants to obtain the same lock...
+
