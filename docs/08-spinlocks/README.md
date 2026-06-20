@@ -28,3 +28,27 @@ I am leaning towards option 3. I didn't do this before as it seems tricky, but i
 
 In the Zig docs for 0.16, it states the [cImport is deprecated](https://ziglang.org/download/0.16.0/release-notes.html#cImport-Moving-to-Build-System) in favor of moving it to the build system.
 
+### Update on option 3
+
+I was able to seemingly get the include paths through trial and error:
+
+```c
+//c.h
+#include pico/sync.h
+```
+
+```zig
+const translate_c = b.addTranslateC(.{
+    .root_source_file = b.path("c.h"),
+    .target = target,
+    .optimize = optimize,
+});
+translate_c.addIncludePath(b.path("pico-sdk/src/boards/include/boards"));
+translate_c.addIncludePath(b.path("pico-sdk/src/common/pico_time/include"));
+translate_c.addIncludePath(b.path("pico-sdk/src/host/hardware_timer/include"));
+translate_c.addIncludePath(b.path("pico-sdk/src/host/hardware_sync/include"));
+translate_c.addIncludePath(b.path("pico-sdk/src/common/pico_sync/include"));
+```
+
+However, it is still failing to compile with a bunch of compilation errors like `critical_section.h:92:80: error: expected ';', found ')'`. I am not sure what the issue is.
+
