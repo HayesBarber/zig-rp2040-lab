@@ -42,4 +42,5 @@ The goal will be to write a program in which one core blinks the LED, and the ot
 I opted to use the pico sdk function instead of re-implementing it in pure zig, so the program is quite simple. Still had some learnings:
 
 - I needed to include `pico_multicore` in the `CMakeLists.txt` to include the multicore functionality
+  - Shoutout to [pico examples](https://github.com/raspberrypi/pico-examples/blob/master/multicore/hello_multicore/CMakeLists.txt#L5)
 - Since the `multicore_launch_core1` function is defined as extern and takes a function pointer, Zig requires a calling convention (e.g. `callconv(.c)`)
