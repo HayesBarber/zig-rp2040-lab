@@ -14,6 +14,10 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+    translate_c.addIncludePath(b.path("pico-sdk/src/boards/include/boards"));
+    translate_c.addIncludePath(b.path("pico-sdk/src/common/pico_time/include"));
+    translate_c.addIncludePath(b.path("pico-sdk/src/host/hardware_timer/include"));
+    translate_c.addIncludePath(b.path("pico-sdk/src/host/hardware_sync/include"));
     translate_c.addIncludePath(b.path("pico-sdk/src/common/pico_sync/include"));
 
     const main_object = b.addObject(.{
