@@ -15,6 +15,8 @@ pub extern fn stdio_init_all() void;
 
 pub extern fn sleep_ms(ms: u32) void;
 
+pub extern fn sleep_us(us: u32) void;
+
 pub extern fn clock_get_hz(clk_index: c_int) u32;
 
 pub extern fn multicore_launch_core1(entry: *const fn () callconv(.c) void) void;

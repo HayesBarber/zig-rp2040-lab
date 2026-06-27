@@ -51,5 +51,13 @@ translate_c.addIncludePath(b.path("pico-sdk/src/host/hardware_sync/include"));
 translate_c.addIncludePath(b.path("pico-sdk/src/common/pico_sync/include"));
 ```
 
-However, it is still failing to compile with a bunch of compilation errors like `critical_section.h:92:80: error: expected ';', found ')'`. I am not sure what the issue is.
+However, it is still failing to compile with a bunch of compilation errors like `critical_section.h:92:80: error: expected ';', found ')'`. I am not sure what the issue is. For the sake of this chapter I may go with option 1 and use raw spinlocks.
+
+## Exercise 11: Intentional Race Condition
+
+We will write a program that intentially has a race condition, and then fix it in the next excercise using spinlocks.
+
+---
+
+
 

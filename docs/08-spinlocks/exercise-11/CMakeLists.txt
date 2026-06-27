@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 include(../../01-boot/exercise-1/blinky/pico_sdk_import.cmake)
 
-project(mutexes C CXX ASM)
+project(race-condition C CXX ASM)
 
 pico_sdk_init()
 
@@ -19,17 +19,17 @@ add_custom_target(
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/zig-out/main.o
 )
 
-add_executable(mutexes)
+add_executable(race-condition)
 
-add_dependencies(mutexes zig_build)
+add_dependencies(race-condition zig_build)
 
-target_sources(mutexes PRIVATE
+target_sources(race-condition PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/zig-out/main.o
 )
 
-target_link_libraries(mutexes pico_stdlib pico_multicore)
+target_link_libraries(race-condition pico_stdlib pico_multicore)
 
-pico_enable_stdio_usb(mutexes 1)
+pico_enable_stdio_usb(race-condition 1)
 
-pico_add_extra_outputs(mutexes)
+pico_add_extra_outputs(race-condition)
 
