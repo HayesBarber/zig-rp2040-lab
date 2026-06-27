@@ -59,5 +59,25 @@ We will write a program that intentially has a race condition, and then fix it i
 
 ---
 
+In `main.zig`, both cores are reading a global shared variable and incrementing it 1 million times. One would expect the variable to be equal to 2 million at the end. The actual output is:
 
+```txt
+beginning core 0 iterations
+beginning core 1 iterations
+core 0 iterations done
+core 1 iterations done
+Expected: 2000000
+Actual:   1054228
+```
+
+Since the shared variable is not protected by mutual exclusion, both cores may read in the same value on a given iteration. For example:
+
+- Core 0 reads 10, and writes 11
+- Core 1 also reads 10, and also writes 11
+
+This causes some iterations to get "lost" so to speak, which is why the actual value is smaller than expected.
+
+One interesting thing that occured is in the main function when core 0 is waiting for core 1 to complete (by incrementing `DONE`). If we don't force the retrieval of `DONE` by making a volitiile cast, the loop never terminates. I beleive this is because the compiler is free to cache `DONE` since the loop doesn't modify it. So despite core 1 incrementing it and `DONE` having the value 2 in RAM, core 0 never sees it because it's not going to RAM, instead using it's cached value. Lets try and look at the assembly to confirm this suspicion.
+
+todo...
 
