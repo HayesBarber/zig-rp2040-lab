@@ -105,10 +105,11 @@ Here is the assembly regarding the loop:
 
 Lets break it down:
 
-1. Load pointer to `DATA` into `r7` (e.g. `r7 = &DONE`)
+1. Load pointer to `DONE` into `r7` (e.g. `r7 = &DONE`)
 2. Load a byte from that address into `r0` (`DONE` is a u8)
 3. Increment `r0` by 1 and store that in `r1`
-4. Store the low 8 bits of `r1` into the memory location of `r7` (aka memory location of `DONE`)
+4. Store the low 8 bits of `r1` into the memory location of `r7`
+  - This updates `DONE`
 5. Compare `r0` to 0
   - Note that `r0` is the value ___before___ incrementing
   - This is not necessarily a problem under normal circumstances. Since `DONE` is a u8, if the old value was zero then old += 1 is 1 and 1 < 2 so loop forever. If the old value was >= 1 then the new value is >= 2 so skip the loop
