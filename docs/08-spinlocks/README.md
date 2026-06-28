@@ -77,7 +77,60 @@ Since the shared variable is not protected by mutual exclusion, both cores may r
 
 This causes some iterations to get "lost" so to speak, which is why the actual value is smaller than expected.
 
-One interesting thing that occured is in the main function when core 0 is waiting for core 1 to complete (by incrementing `DONE`). If we don't force the retrieval of `DONE` by making a volitiile cast, the loop never terminates. I beleive this is because the compiler is free to cache `DONE` since the loop doesn't modify it. So despite core 1 incrementing it and `DONE` having the value 2 in RAM, core 0 never sees it because it's not going to RAM, instead using it's cached value. Lets try and look at the assembly to confirm this suspicion.
+One interesting thing that occured is in the main function when core 0 is waiting for core 1 to complete (by incrementing `DONE`). If we don't force the retrieval of `DONE` by making a volatile cast, the loop never terminates. I beleive this is because the compiler is free to cache `DONE` (e.g. as a stack var) since the loop doesn't modify it. So despite core 1 incrementing it and `DONE` having the value 2 in RAM, core 0 never sees it because it's not going to RAM, instead using it's cached value. Lets try and look at the assembly to confirm this suspicion.
 
-todo...
+First, we will adjust the while loop in `main.zig` to not be volatile:
+
+```zig
+while (DONE < 2) {}
+```
+
+Then object dump:
+
+```bash
+arm-none-eabi-objdump -D -m arm -M force-thumb race-condition.elf > asm.s
+nvim asm.s
+```
+
+Here is the assembly regarding the loop:
+
+```asm
+10006faa:	4f12      	ldr	r7, [pc, #72]	@ (10006ff4 <main+0x94>)
+10006fac:	7838      	ldrb	r0, [r7, #0]
+10006fae:	1c41      	adds	r1, r0, #1
+10006fb0:	7039      	strb	r1, [r7, #0]
+10006fb2:	2800      	cmp	r0, #0
+10006fb4:	d00c      	beq.n	10006fd0 <main+0x70>
+```
+
+Lets break it down:
+
+1. Load pointer to `DATA` into `r7` (e.g. `r7 = &DONE`)
+2. Load a byte from that address into `r0` (`DONE` is a u8)
+3. Increment `r0` by 1 and store that in `r1`
+4. Store the low 8 bits of `r1` into the memory location of `r7` (aka memory location of `DONE`)
+5. Compare `r0` to 0
+  - Note that `r0` is the value ___before___ incrementing
+  - This is not necessarily a problem under normal circumstances. Since `DONE` is a u8, if the old value was zero then old += 1 is 1 and 1 < 2 so loop forever. If the old value was >= 1 then the new value is >= 2 so skip the loop
+6. Brach to `10006fd0` if the old value of `DONE` was 0
+
+If we look at `10006fd0` we see an infinite loop:
+
+```asm
+10006fd0:	e7fe      	b.n	10006fd0 <main+0x70>
+```
+
+This confirms our suspicion that compiler omptimizations have caused the program to only evaluate the value of `DONE` once, and thus the infinite loop. Lets put the volatile code back and look at the assembly again:
+
+```asm
+10006faa:	4f12      	ldr	r7, [pc, #72]	@ (10006ff4 <main+0x94>)
+10006fac:	7838      	ldrb	r0, [r7, #0]
+10006fae:	1c40      	adds	r0, r0, #1
+10006fb0:	7038      	strb	r0, [r7, #0]
+10006fb2:	7838      	ldrb	r0, [r7, #0]
+10006fb4:	2802      	cmp	r0, #2
+10006fb6:	d3fc      	bcc.n	10006fb2 <main+0x52>
+```
+
+Now we can see that the value of `DONE` is continuously loaded into `r0` and compared against 2.
 

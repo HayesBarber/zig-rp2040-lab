@@ -40,7 +40,7 @@ export fn main() noreturn {
 
     DONE += 1;
 
-    // if we don't make this volitile this loop won't break
+    // if we don't make this volatile this loop won't break
     // replace this with "while (DONE < 2) {}" and see for yourself
     while (@as(*volatile u8, &DONE).* < 2) {}
 
