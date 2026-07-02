@@ -11,3 +11,17 @@ This is for learning purposes
 - [RP2040](https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008371-DS-1-rp2040-datasheet.pdf)
 - [Pico W](https://pip-assets.raspberrypi.com/categories/686-raspberry-pi-pico-w/documents/RP-008312-DS-1-pico-w-datasheet.pdf)
 
+### Roadmap
+
+- [x] Boot Sequence
+- [x] SDK interop
+- [x] Picotool
+- [x] Timer interrupts
+- [x] Exception entry and register stacking
+- [x] PendSV interrupt
+- [x] Multicore
+- [x] Spinlocks
+- [ ] Linker scripts
+- [ ] crt0
+- [ ] zrt0
+
