@@ -135,3 +135,34 @@ This confirms our suspicion that compiler omptimizations have caused the program
 
 Now we can see that the value of `DONE` is continuously loaded into `r0` and compared against 2.
 
+# Exercise 12: Fixing the race condition
+
+Let's use a spinlock to fix the bug in exercise 11
+
+---
+
+With the spinlocks in place, we get the expected output:
+
+```txt
+beginning core 0 iterations
+beginning core 1 iterations
+core 0 iterations done
+core 1 iterations done
+Expected: 2000000
+Actual:   2000000
+```
+
+As mentioned above, reading non-zero means the lock was obtained, and writing to the address frees the lock:
+
+```zig
+pub fn spinlockGet(comptime num: u8) void {
+    const address: u32 = SPINLOCK_0 + (num * 0x4);
+    while (get32(address) == 0) {}
+}
+
+pub fn spinlockFree(comptime num: u8) void {
+    const address: u32 = SPINLOCK_0 + (num * 0x4);
+    put32(address, 1);
+}
+```
+
