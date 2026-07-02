@@ -44,11 +44,21 @@ pub fn ledInit() void {
 }
 
 pub fn spinlockGet(comptime num: u8) void {
+    comptime {
+        if (num > 31) {
+            @compileError("There are only 32 spinlocks on the RP2040");
+        }
+    }
     const address: u32 = SPINLOCK_0 + (num * 0x4);
     while (get32(address) == 0) {}
 }
 
 pub fn spinlockFree(comptime num: u8) void {
+    comptime {
+        if (num > 31) {
+            @compileError("There are only 32 spinlocks on the RP2040");
+        }
+    }
     const address: u32 = SPINLOCK_0 + (num * 0x4);
     put32(address, 1);
 }
