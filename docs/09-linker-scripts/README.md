@@ -1,10 +1,10 @@
 # 09 - Linker Scripts
 
-Although this project has interacted with linker scripts in some previous chapters, I realized I didn't really do a deep dive on them. I wouldn't say that I feel comfortable with the syntax before this chapter, so lets see what we can learn.
+Although this project has interacted with linker scripts in some previous chapters, I realized I didn't really do a deep dive on them. I wouldn't say that I feel comfortable with the syntax before this chapter, so lets see what we can learn. I could imagine a scenario where this project uses a custom linker for task stacks/heaps/etc.
 
 ## What is in a linker script?
 
-I would say there are two primary things in a linker script: memory layout and sections. There can also be variables that can references as symbols in code.
+I would say there are two primary things in a linker script: memory layout and sections. Variables can also be created that can be referenced in code.
 
 ### Memory Layout
 
@@ -28,7 +28,7 @@ Sections arrange data within the memory blocks. For example, where does our appl
 - `.data`: initialized variables
 - `.bss`: un-initialized variables (to be zero-ed out)
 
-Taking a loot at the sections of the same example from above:
+Taking a loot at the sections from the same bare-matal linker:
 
 ```ld
 SECTIONS
@@ -55,12 +55,12 @@ There is only a `.text` section for this simple example. Lets break is down:
 - The next 3 lines reserve space for the second stage bootloader
 - It then lays out the boot entry and remainder of text
   - Notice that the `.boot.entry` aligns with the section label used in the [main function](https://github.com/carlosftm/RPi-Pico-Baremetal/blob/main/02_Flash_2_SRAM_SDK/blink_flash.c#L7)
-- The `> RAM` at the end of the section specifies that this section is to be loaded into RAM
+- The `> RAM` at the end of the section specifies that this section is in the RAM memory region
 
 Some other things I think are noteworthy:
 
 - Notice that there is another linker script in the [bare-metal example](https://github.com/carlosftm/RPi-Pico-Baremetal/blob/main/02_Flash_2_SRAM_SDK/memmap_boot2.ld) specifically for boot2 which puts it in flash instead. Based on what we know about the boot sequence this makes sense, since the RP2040 will load the first 256 bytes from flash into RAM. Since boot2 is it's own standalone program, it has it's own linker script.
-- Linkers sections have two addresses: load address (LMA) and virtual address (VMA). LMA is kinda like where things are initially stored (e.g. flash), while VMA is where it runs. You can specify this mapping in the linker via `AT`. For example: `> RAM AT > FLASH` would say the section is run in RAM but stored in flash. If `AT` is omitted, LMA = VMA.
+- Linkers sections have two addresses: load address (LMA) and virtual address (VMA). LMA is kinda like initiall storage location (e.g. flash), while VMA is where it runs. You can specify this mapping in the linker via `AT`. For example: `> RAM AT > FLASH` would say the section is run in RAM but stored in flash. If `AT` is omitted, LMA = VMA.
 - We can also see some variables being set to memory locations. In this case there is an assertion that boot2 is 256 bytes.
 
 ## References
