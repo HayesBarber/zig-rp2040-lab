@@ -60,7 +60,7 @@ There is only a `.text` section for this simple example. Lets break is down:
 Some other things I think are noteworthy:
 
 - Notice that there is another linker script in the [bare-metal example](https://github.com/carlosftm/RPi-Pico-Baremetal/blob/main/02_Flash_2_SRAM_SDK/memmap_boot2.ld) specifically for boot2 which puts it in flash instead. Based on what we know about the boot sequence this makes sense, since the RP2040 will load the first 256 bytes from flash into RAM. Since boot2 is it's own standalone program, it has it's own linker script.
-- Linkers sections have two addresses: load address (LMA) and virtual address (VMA). LMA is kinda like initiall storage location (e.g. flash), while VMA is where it runs. You can specify this mapping in the linker via `AT`. For example: `> RAM AT > FLASH` would say the section is run in RAM but stored in flash. If `AT` is omitted, LMA = VMA.
+- Linkers sections have two addresses: load address (LMA) and virtual address (VMA). LMA is kinda like initial storage location (e.g. flash), while VMA is where it runs. You can specify this mapping in the linker via `AT`. For example: `> RAM AT > FLASH` would say the section is run in RAM but stored in flash. If `AT` is omitted, LMA = VMA.
 - We can also see some variables being set to memory locations. In this case there is an assertion that boot2 is 256 bytes.
 
 ## References
