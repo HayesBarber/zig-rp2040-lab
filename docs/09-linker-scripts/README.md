@@ -28,7 +28,7 @@ Sections arrange data within the memory blocks. For example, where does our appl
 - `.data`: initialized variables
 - `.bss`: un-initialized variables (to be zero-ed out)
 
-Taking a loot at the sections from the same bare-matal linker:
+Taking a loot at the sections from the same bare-metal linker:
 
 ```ld
 SECTIONS
