@@ -21,7 +21,7 @@ This is for learning purposes
 - [x] PendSV interrupt
 - [x] Multicore
 - [x] Spinlocks
-- [ ] Linker scripts
+- [x] Linker scripts
 - [ ] crt0
 - [ ] zrt0
 
