@@ -67,4 +67,5 @@ Some other things I think are noteworthy:
 
 - https://interrupt.memfault.com/blog/how-to-write-linker-scripts-for-firmware
 - https://dev.to/ripan030/linker-scripts-explained-controlling-memory-layout-on-bare-metal-3ocb
+- https://github.com/carlosftm/RPi-Pico-Baremetal
 
