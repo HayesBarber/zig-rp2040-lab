@@ -19,8 +19,15 @@ One of the first things in the crt0 file (after all the initial `#include`s and 
   - ends at 189
 - lines 191-232 define some macros that create weak links for ISRs that can be overriden
   - you can see on line 348-352 some ISRs defaulting to breakpoints
-- lines 358-378
-  - todo
+- lines 358-378 contain the binary info header
 - line 399 defines `_entry_point`. It technically prefaces the reset handler, and is the ELF entry point. If debugging the rp2040, `_entry_point` will ensure the boot sequence occured properly and initialised flash
-- line 458 is a function `_enter_vtable_in_r0` that...
+- line 465 starts getting into the reset handler
+  - Ensures that only core 0 continues (sends core 1 to ROM to wait for core 0 to start it)
+  - Copy .data
+  - Clear .bss
+  - line 547 we can see the `platform_entry`
+- The remainder of crt0 is largely supporting startup
+  - Defining `data_cpy_table`
+  - A weak `runtime_init` that can be overriden
+  - `.stack` and `.heap` sections
 
