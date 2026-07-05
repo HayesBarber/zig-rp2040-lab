@@ -34,3 +34,5 @@ At this point, I think we have come a long way and should start making progress 
 
 Per the name of this chapter, we need to build out a zrt0 that branches into the application code. I think I can yank one of the existing second stage bootloaders that sets XIP for flash. Then I may opt to write zrt0 in zig similar to how MicroZig does it and define the vector table and whatnot there.
 
+The plan will be to start creating the root-level file structure for the project instead of putting everything in exercise sub-directories (though I am still cool with doing that ad-hoc).
+
