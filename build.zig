@@ -9,7 +9,27 @@ pub fn build(b: *std.Build) void {
         .cpu_model = .{ .explicit = &std.Target.arm.cpu.cortex_m0plus },
     });
 
-    _ = build_boot2(b, target, optimize);
+    const boot2_bin = build_boot2(b, target, optimize);
+
+    const boot2_mod = b.createModule(.{ .root_source_file = boot2_bin });
+    const bootrom_mod = b.createModule(.{
+        .root_source_file = b.path("src/boot/stage2/rp2040_bootrom.zig"),
+    });
+    bootrom_mod.addImport("bootloader", boot2_mod);
+    const zrt0_mod = b.createModule(.{
+        .root_source_file = b.path("src/boot/zrt0/zrt0.zig"),
+    });
+
+    const fw = b.addExecutable(.{
+        .name = "zig-rp2040-lab",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    fw.root_module.addImport("bootrom", bootrom_mod);
+    fw.root_module.addImport("zrt0", zrt0_mod);
 }
 
 fn build_boot2(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) std.Build.LazyPath {
