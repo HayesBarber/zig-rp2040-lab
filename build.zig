@@ -30,6 +30,7 @@ pub fn build(b: *std.Build) void {
     });
     fw.root_module.addImport("bootrom", bootrom_mod);
     fw.root_module.addImport("zrt0", zrt0_mod);
+    b.installArtifact(fw);
 }
 
 fn build_boot2(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) std.Build.LazyPath {
