@@ -3,6 +3,10 @@
 // modified for use in this project
 const std = @import("std");
 
+comptime {
+    _ = BootromData.bootloader_data;
+}
+
 const BootromData = struct {
     fn prepare_boot_sector(comptime stage2_rom: []const u8) [256]u8 {
         @setEvalBranchQuota(10_000);
