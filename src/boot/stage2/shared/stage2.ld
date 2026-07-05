@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: Zlib
-// Copyright (c) Zig Embedded Group contributors
+/* SPDX-License-Identifier: Zlib */
+/* Copyright (c) Zig Embedded Group contributors */
 /*
  * Target CPU:  ARM Cortex-M0+
  * Target Chip: RP2040
