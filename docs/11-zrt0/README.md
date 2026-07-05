@@ -36,3 +36,11 @@ Per the name of this chapter, we need to build out a zrt0 that branches into the
 
 The plan will be to start creating the root-level file structure for the project instead of putting everything in exercise sub-directories (though I am still cool with doing that ad-hoc).
 
+## Exercise 14: Build zrt0
+
+Here is where this project's implementation really starts. We will be using what we have learned so far to build out boot2 (with checksum) and zrt0. We will pull what is re-usable from the pico-sdk and MicroZig.
+
+```bash
+arm-none-eabi-objdump -h zig-rp2040-lab
+```
+
