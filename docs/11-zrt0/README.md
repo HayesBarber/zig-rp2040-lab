@@ -22,3 +22,15 @@ I think a good next stup is to create a blinky program using MicroZig.
 
 I am currently still on Zig 0.16, and 0.17 is still in dev. Lets see if anything breaks, and if so I can upgrade (yolo).
 
+---
+
+Update is that I tried to build the MicroZig rp2040 [example](https://github.com/ZigEmbeddedGroup/microzig/tree/main/examples/raspberrypi/rp2xxx), but it was giving me more trouble than I think it is worth. 
+
+I think the path forward is to use MicroZig as a reference, but opt for this project to be bare-metal with no dependencies (at least as much as reasonably possible).
+
+## Update on what is next
+
+At this point, I think we have come a long way and should start making progress towards the actual implementation of the scheduler.
+
+Per the name of this chapter, we need to build out a zrt0 that branches into the application code. I think I can yank one of the existing second stage bootloaders that sets XIP for flash. Then I may opt to write zrt0 in zig similar to how MicroZig does it and define the vector table and whatnot there.
+
