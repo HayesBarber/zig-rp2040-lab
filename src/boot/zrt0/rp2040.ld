@@ -13,7 +13,7 @@ SECTIONS
       KEEP(*(.boot2))
       __boot2_end__ = .;
       KEEP(*(.vectors))
-      KEEP(*(.text*))
+      *(.text*)
     } > FLASH
             
     ASSERT(__boot2_end__ - __boot2_start__ == 256,
