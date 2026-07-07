@@ -1,5 +1,7 @@
+const zrt0 = @import("zrt0");
+
 comptime {
-    _ = @import("zrt0");
+    zrt0.init();
 }
 
 pub fn main() noreturn {
