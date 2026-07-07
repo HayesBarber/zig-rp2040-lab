@@ -32,6 +32,11 @@ pub fn build(b: *std.Build) void {
     fw.root_module.addImport("zrt0", zrt0_mod);
     fw.setLinkerScript(b.path("src/boot/zrt0/rp2040.ld"));
     b.installArtifact(fw);
+    const fw_bin = fw.addObjCopy(.{
+        .format = .bin,
+    });
+    const install_bin = b.addInstallBinFile(fw_bin.getOutput(), "zig-rp2040-lab.bin");
+    b.getInstallStep().dependOn(&install_bin.step);
 }
 
 fn build_boot2(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) std.Build.LazyPath {
