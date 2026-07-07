@@ -21,7 +21,7 @@ pub const VectorTable = extern struct {
     systick: ?*const anyopaque,
 };
 
-pub const vector_table align(256) linksection(".vectors") = VectorTable{
+export const vector_table align(256) linksection(".vectors") = VectorTable{
     .initial_sp = &__stack_top,
     .reset = &_start,
     .nmi = null,
@@ -47,11 +47,5 @@ export fn _start() callconv(.c) noreturn {
 }
 
 pub fn init() void {
-    // builds boot2
     _ = @import("bootrom");
-    @export(&vector_table, .{
-        .name = "_vector_table",
-        .section = ".vectors",
-        .linkage = .strong,
-    });
 }

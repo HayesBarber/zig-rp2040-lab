@@ -30,6 +30,7 @@ pub fn build(b: *std.Build) void {
         }),
     });
     fw.root_module.addImport("zrt0", zrt0_mod);
+    fw.setLinkerScript(b.path("src/boot/zrt0/rp2040.ld"));
     b.installArtifact(fw);
 }
 
