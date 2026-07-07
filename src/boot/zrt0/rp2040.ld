@@ -9,12 +9,21 @@ __stack_top = ORIGIN(RAM) + LENGTH(RAM);
 SECTIONS
 {
     .text : {
-        __boot2_start__ = .;
-        KEEP(*(.boot2))
-        __boot2_end__ = .;
-        KEEP(*(.vectors))
+      __boot2_start__ = .;
+      KEEP(*(.boot2))
+      __boot2_end__ = .;
+      KEEP(*(.vectors))
+      KEEP(*(.text*))
     } > FLASH
             
     ASSERT(__boot2_end__ - __boot2_start__ == 256,
         "ERROR: Pico second stage bootloader must be 256 bytes in size")
+
+    .data : {
+      *(.data*)
+    } > RAM AT> FLASH
+
+    .bss (NOLOAD) : {
+      *(.bss*)
+    } > RAM
 }
