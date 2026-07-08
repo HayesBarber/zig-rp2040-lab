@@ -39,7 +39,7 @@ pub fn main() noreturn {
     ledInit();
     while (true) {
         toggleLED();
-        var a: u32 = 200000;
+        var a: u32 = 150000;
         while (a > 0) : (a -= 1) {
             asm volatile ("nop");
         }

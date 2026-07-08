@@ -2,7 +2,7 @@ const root = @import("root");
 
 extern const __stack_top: u8;
 
-pub const VectorTable = extern struct {
+const VectorTable = extern struct {
     initial_sp: *const anyopaque,
     reset: *const fn () callconv(.c) noreturn,
     nmi: ?*const anyopaque = null,
