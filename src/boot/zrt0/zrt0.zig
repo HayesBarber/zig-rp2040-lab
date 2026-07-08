@@ -1,5 +1,9 @@
 const root = @import("root");
 
+comptime {
+    _ = @import("bootrom");
+}
+
 extern const __stack_top: u8;
 
 const VectorTable = extern struct {
@@ -55,6 +59,4 @@ export fn _start() callconv(.c) noreturn {
     while (true) {}
 }
 
-pub fn init() void {
-    _ = @import("bootrom");
-}
+pub fn init() void {}
