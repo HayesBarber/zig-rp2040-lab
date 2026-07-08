@@ -37,6 +37,23 @@ pub fn build(b: *std.Build) void {
     });
     const install_bin = b.addInstallBinFile(fw_bin.getOutput(), "zig-rp2040-lab.bin");
     b.getInstallStep().dependOn(&install_bin.step);
+
+    const uf2 = b.addSystemCommand(&.{
+        "picotool",
+        "uf2",
+        "convert",
+    });
+    uf2.addFileArg(fw_bin.getOutput());
+    const uf2_file = uf2.addOutputFileArg("zig-rp2040-lab.uf2");
+    uf2.addArg("-o");
+    uf2.addArg("0x10000000");
+    uf2.addArg("--family");
+    uf2.addArg("rp2040");
+    const install_uf2 = b.addInstallFile(
+        uf2_file,
+        "zig-rp2040-lab.uf2",
+    );
+    b.getInstallStep().dependOn(&install_uf2.step);
 }
 
 fn build_boot2(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) std.Build.LazyPath {
