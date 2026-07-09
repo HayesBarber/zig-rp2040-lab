@@ -40,7 +40,36 @@ The plan will be to start creating the root-level file structure for the project
 
 Here is where this project's implementation really starts. We will be using what we have learned so far to build out boot2 (with checksum) and zrt0. We will pull what is re-usable from the pico-sdk and MicroZig.
 
-```bash
-arm-none-eabi-objdump -h zig-rp2040-lab
+---
+
+Alrighty, we now have a root-level file structure that I am happy with, and a zrt0 the invokes the main application code. The directory structure I am thinking of rocking with is this:
+
+```txt
+.
+├── src/
+│   ├── boot/
+│   │   ├── stage2/
+│   │   └── zrt0/
+│   ├── core/
+│   ├── kernal/
+│   └── main.zig
+└── build.zig
 ```
+
+The scheduler code will reside in `kernal`, and embedded/pico code will live in `core`. The `stage2` directory houses the second stage bootloader that was yanked from the pico-sdk and MicroZig. `zrt0.zig` holds the vector table, as well as the function to copy over `.data` and `.bss`. There is also a `rp2040.ld` linker script that lays out all the memory locations.
+
+I also want to break down `build.zig` as it is crifical:
+
+1. Build boot2 into a `.bin` 
+  - Uses `w25q080.S` from RPI/MicroZig
+  - Configures XIP
+2. Adds `w25q080.bin` as a module for `rp2040_bootrom.zig` with name `bootloader`
+  - This allows `rp2040_bootrom.zig` to `@embedFile` and compute the CRC, and then `export linksection(".boot2")`
+3. Adds the checksummed boot2 as an import to `zrt0`
+  - `zrt0` does a comptime reference to it so that it doesn't get excluded
+4. The main `zig-rp2040-lab` executable is built with `zrt0` added as a module
+  - `main.zig` similarly does a comptime reference to `zrt0`
+5. Use `picotool` to convert to `uf2`
+
+The pico-sdk and MicroZig were critical in getting this all to work, so all credit to those projects.
 
