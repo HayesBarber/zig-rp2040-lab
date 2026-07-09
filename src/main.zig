@@ -1,7 +1,7 @@
-const zrt0 = @import("zrt0");
+const core = @import("core");
 
 comptime {
-    zrt0.init();
+    @import("zrt0").init();
 }
 
 pub const GPIO_OUT_XOR = 0xd000001c;

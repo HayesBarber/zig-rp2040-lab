@@ -1,0 +1,5 @@
+pub const CORTEX_BASE = 0xe0000000;
+pub const CORTEX_SYST_CSR = CORTEX_BASE + 0xe010;
+pub const CORTEX_SYST_RVR = CORTEX_BASE + 0xe014;
+
+pub const GPIO_OUT_XOR = 0xd000001c;

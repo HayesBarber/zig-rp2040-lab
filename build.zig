@@ -21,6 +21,10 @@ pub fn build(b: *std.Build) void {
     });
     zrt0_mod.addImport("bootrom", bootrom_mod);
 
+    const core_mod = b.createModule(.{
+        .root_source_file = b.path("src/core/mod.zig"),
+    });
+
     const fw = b.addExecutable(.{
         .name = "zig-rp2040-lab",
         .root_module = b.createModule(.{
@@ -30,6 +34,7 @@ pub fn build(b: *std.Build) void {
         }),
     });
     fw.root_module.addImport("zrt0", zrt0_mod);
+    fw.root_module.addImport("core", core_mod);
     fw.setLinkerScript(b.path("src/boot/zrt0/rp2040.ld"));
     b.installArtifact(fw);
     const fw_bin = fw.addObjCopy(.{
