@@ -22,6 +22,6 @@ This is for learning purposes
 - [x] Multicore
 - [x] Spinlocks
 - [x] Linker scripts
-- [ ] crt0
-- [ ] zrt0
+- [x] crt0
+- [x] zrt0
 
