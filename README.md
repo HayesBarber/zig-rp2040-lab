@@ -23,5 +23,5 @@ This is for learning purposes
 - [x] Spinlocks
 - [x] Linker scripts
 - [x] crt0
-- [ ] zrt0
+- [x] zrt0
 
