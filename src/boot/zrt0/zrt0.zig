@@ -1,4 +1,5 @@
 const root = @import("root");
+const kernal = @import("kernal");
 
 comptime {
     _ = @import("bootrom");
@@ -28,6 +29,7 @@ const VectorTable = extern struct {
 export const vector_table align(256) linksection(".vectors") = VectorTable{
     .initial_sp = &__stack_top,
     .reset = &_start,
+    .systick = &kernal.scheduler.isr_systick,
 };
 
 fn copy_data_and_bss() void {
@@ -54,9 +56,11 @@ fn copy_data_and_bss() void {
 export fn _start() callconv(.c) noreturn {
     copy_data_and_bss();
 
+    kernal.scheduler.start();
     root.main();
-
-    while (true) {}
+    while (true) {
+        asm volatile ("nop");
+    }
 }
 
 pub fn init() void {}
