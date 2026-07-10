@@ -7,8 +7,8 @@ comptime {
 pub fn main() noreturn {
     core.gpio.ledInit();
     while (true) {
-        core.gpio.toggleLED();
-        var a: u32 = 150000;
+        core.gpio.turnOnLED();
+        var a: u32 = 500000;
         while (a > 0) : (a -= 1) {
             asm volatile ("nop");
         }

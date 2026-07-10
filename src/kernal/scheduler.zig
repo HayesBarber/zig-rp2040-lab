@@ -9,7 +9,15 @@ fn initSystick() void {
     memory.putAddr(memory.CORTEX_SYST_CSR, SYSTICK_ENABLE_BITMASK);
 }
 
-pub fn isr_systick() void {}
+var TICK_COUNTER: u32 = 0;
+
+pub fn isr_systick() void {
+    TICK_COUNTER += 1;
+    if (TICK_COUNTER < 2000) return;
+    TICK_COUNTER = 0;
+
+    core.gpio.turnOffLED();
+}
 
 pub fn start() void {
     initSystick();

@@ -1,13 +1,35 @@
 const memory = @import("memory.zig");
+
+pub const GPIO_OUT_SET = 0xd0000014;
+pub const GPIO_OUT_CLEAR = 0xd0000018;
+pub const GPIO_OUT_XOR = 0xd000001c;
 pub const LED_PIN = 25;
 
 pub fn toggleGPIO(comptime pin: u8) void {
     const mask = 1 << pin;
-    memory.putAddr(memory.GPIO_OUT_XOR, mask);
+    memory.putAddr(GPIO_OUT_XOR, mask);
+}
+
+pub fn setGPIO(comptime pin: u8) void {
+    const mask = 1 << pin;
+    memory.putAddr(GPIO_OUT_SET, mask);
+}
+
+pub fn clearGPIO(comptime pin: u8) void {
+    const mask = 1 << pin;
+    memory.putAddr(GPIO_OUT_CLEAR, mask);
 }
 
 pub fn toggleLED() void {
     toggleGPIO(LED_PIN);
+}
+
+pub fn turnOnLED() void {
+    setGPIO(LED_PIN);
+}
+
+pub fn turnOffLED() void {
+    clearGPIO(LED_PIN);
 }
 
 pub fn ledInit() void {
