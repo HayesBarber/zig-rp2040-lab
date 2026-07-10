@@ -13,7 +13,7 @@ var TICK_COUNTER: u32 = 0;
 
 pub fn isr_systick() void {
     TICK_COUNTER += 1;
-    if (TICK_COUNTER < 2000) return;
+    if (TICK_COUNTER < 50) return;
     TICK_COUNTER = 0;
 
     core.gpio.turnOffLED();
