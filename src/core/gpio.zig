@@ -1,23 +1,20 @@
 const mmio = @import("mmio.zig");
 
-pub const GPIO_OUT_SET = 0xd0000014;
-pub const GPIO_OUT_CLEAR = 0xd0000018;
-pub const GPIO_OUT_XOR = 0xd000001c;
 pub const LED_PIN = 25;
 
 pub fn toggleGPIO(comptime pin: u8) void {
     const mask = 1 << pin;
-    mmio.putAddr(GPIO_OUT_XOR, mask);
+    mmio.gpio.xor = mask;
 }
 
 pub fn setGPIO(comptime pin: u8) void {
     const mask = 1 << pin;
-    mmio.putAddr(GPIO_OUT_SET, mask);
+    mmio.gpio.set = mask;
 }
 
 pub fn clearGPIO(comptime pin: u8) void {
     const mask = 1 << pin;
-    mmio.putAddr(GPIO_OUT_CLEAR, mask);
+    mmio.gpio.clear = mask;
 }
 
 pub fn toggleLED() void {
