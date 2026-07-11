@@ -1,12 +1,12 @@
 const core = @import("core");
-const memory = core.memory;
+const mmio = core.mmio;
 
 const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms
 const SYSTICK_ENABLE_BITMASK = 0x7;
 
 fn initSystick() void {
-    memory.putAddr(memory.CORTEX_SYST_RVR, SYSTICK_RELOAD_VALUE);
-    memory.putAddr(memory.CORTEX_SYST_CSR, SYSTICK_ENABLE_BITMASK);
+    mmio.systick.rvr = SYSTICK_RELOAD_VALUE;
+    mmio.systick.csr = SYSTICK_ENABLE_BITMASK;
 }
 
 var TICK_COUNTER: u32 = 0;
