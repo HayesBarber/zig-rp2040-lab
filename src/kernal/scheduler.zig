@@ -1,7 +1,7 @@
 const core = @import("core");
 const mmio = core.mmio;
 
-const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms
+const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms for 125MHz
 const SYSTICK_ENABLE_BITMASK = 0x7;
 
 fn initSystick() void {
@@ -16,9 +16,10 @@ pub fn isr_systick() callconv(.c) void {
     if (TICK_COUNTER < 50) return;
     TICK_COUNTER = 0;
 
-    core.gpio.turnOffLED();
+    core.gpio.toggleLED();
 }
 
 pub fn start() void {
+    core.gpio.ledInit();
     initSystick();
 }

@@ -59,7 +59,7 @@ export fn _start() callconv(.c) noreturn {
     kernal.scheduler.start();
     root.main();
     while (true) {
-        asm volatile ("nop");
+        asm volatile ("wfi");
     }
 }
 
