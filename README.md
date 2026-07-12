@@ -24,4 +24,10 @@ This is for learning purposes
 - [x] Linker scripts
 - [x] crt0
 - [x] zrt0
+- [x] System clocks
+- [ ] USB comms
+- [ ] Task registration API
+- [ ] Scheduler algorithm
+- [ ] Context switch
+- [ ] Heap allocator
 
