@@ -29,5 +29,7 @@ This is for learning purposes
 - [ ] Task registration API
 - [ ] Scheduler algorithm
 - [ ] Context switch
+- [ ] Telemetry
+- [ ] Synthetic workload / profiling
 - [ ] Heap allocator
 
