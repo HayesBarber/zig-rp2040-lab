@@ -5,12 +5,7 @@ comptime {
 }
 
 pub fn main() noreturn {
-    core.gpio.ledInit();
     while (true) {
-        core.gpio.turnOnLED();
-        var a: u32 = 500000;
-        while (a > 0) : (a -= 1) {
-            asm volatile ("nop");
-        }
+        asm volatile ("wfi");
     }
 }

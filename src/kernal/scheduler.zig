@@ -1,12 +1,12 @@
 const core = @import("core");
-const memory = core.memory;
+const mmio = core.mmio;
 
-const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms
+const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms for 125MHz
 const SYSTICK_ENABLE_BITMASK = 0x7;
 
 fn initSystick() void {
-    memory.putAddr(memory.CORTEX_SYST_RVR, SYSTICK_RELOAD_VALUE);
-    memory.putAddr(memory.CORTEX_SYST_CSR, SYSTICK_ENABLE_BITMASK);
+    mmio.systick.rvr = SYSTICK_RELOAD_VALUE;
+    mmio.systick.csr = SYSTICK_ENABLE_BITMASK;
 }
 
 var TICK_COUNTER: u32 = 0;
@@ -16,9 +16,11 @@ pub fn isr_systick() callconv(.c) void {
     if (TICK_COUNTER < 50) return;
     TICK_COUNTER = 0;
 
-    core.gpio.turnOffLED();
+    core.gpio.toggleLED();
 }
 
 pub fn start() void {
+    core.gpio.ledInit();
+    core.clocks.initClocks();
     initSystick();
 }
