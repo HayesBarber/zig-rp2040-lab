@@ -38,7 +38,7 @@ For this project, I would like to get both the PLLs setup for a system clock of 
     - 0x21 is for bits 5 and 0, which powers up PLL VCO and PLL respectively
   - Wait for the PLL to lock by polling bit 31 of the `CS` register (offset 0x0 from `PLL_SYS`)
   - Clear POSTDIVPD bit in the `PWR` register to enable PLL dividers
-    - Write 0x08 to atomic clear register `0x4002b000` to clar bit 3
+    - Write 0x08 to atomic clear register `0x4002b000` to clear bit 3
 6. Switch system clock to PLL
   - Write a 1 to `CLK_SYS_CTRL` (offset 0x3c from clock base) to change clock source to `CLKSRC_CLK_SYS_AUX`
     - `CLKSRC_PLL_SYS` is the default aux source
