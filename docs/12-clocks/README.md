@@ -32,7 +32,7 @@ For this project, I would like to get both the PLLs setup for a system clock of 
   - Wait for `PLL_SYS` to be out of reset by polling `RESET_DONE` register bit 12 for a 1 (offset 0x8 from base)
   - Write a value of 125 to the `FBDIV_INT` register (offset 0x8 from `PLL_SYS` base of `0x40028000`)
     - See datasheet `2.18.2.1`, but we need `FBDIV=125, PD1=6, PD2=2` for a 125MHz system clock with a 12MHz input
-  - Write 0x62 to bits 14:12 of the `PRIM` register (offset 0xc from `PLL_SYS` base)
+  - Write 0x62<<12 to the `PRIM` register (offset 0xc from `PLL_SYS` base)
   - Power up the PLL by writing 0x21 to `PWR` register (offset 0x4 from `PLL_SYS` base)
     - Use atomic clear `0x4002b000`
     - 0x21 is for bits 5 and 0, which powers up PLL VCO and PLL respectively
