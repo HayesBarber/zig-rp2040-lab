@@ -14,7 +14,11 @@ One way or another we are going to need to be able to implement some sort of `pr
 
 If tinyusb isn't a pain to integrate with, it would probably be the cleanest option. My second choice would then be the UART-to-USB adater. An external display is my least favorite.
 
+## MicroZig?
+
 Another question that comes to mind is how does MicroZig handle USB communication? It seems that it has some sort of [usb.zig](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/usb.zig) implementation. It is ~500 LOC, and I am not sure how portable it would be. Will revisit this if it comes to it.
 
 ## TinyUSB Integration
+
+It seems that tinyusb may actually [depend on the pico-sdk](https://github.com/hathach/tinyusb/blob/master/src/portable/raspberrypi/rp2040/rp2040_usb.h). This makes me lean towards the UART option.
 
