@@ -26,3 +26,16 @@ It seems that tinyusb may actually [depend on the pico-sdk](https://github.com/h
 
 I have purchased a UART-to-USB adapter ([this one](https://www.amazon.com/dp/B0FJRTL572?th=1)), and am planning on going that route. While I was ordering stuff, I also ordered some more RP2040 boards that have two conveniences I desired: USB-C and a reset button.
 
+The RP2040 has 2 identical UART peripherals: UART0 and UART1. My understanding is that the initialization is the same, just different address. We will plan on using UART0. The sequence for setting it up is as follows:
+
+1. Configure `clk_peri` to use `clk_sys`
+  - Within `CLK_PERI_CTRL` register, set bit 11 to enable, and AUXSRC bits to `CLKSRC_PLL_SYS`
+2. Bring UART0 out of reset
+  - Use atomic address to clear `RESET` bit 22 for UART0
+  - Poll `RESET_DONE` bit 22 for a 1 to ensure reset is done
+
+## References
+
+- https://youtu.be/MUT6ZubKS3w?si=CVum4dLJZ9pARr3v
+- https://github.com/LifeWithDavid/RaspberryPiPico-BareMetalAdventures/tree/main/Chapter%2003
+
