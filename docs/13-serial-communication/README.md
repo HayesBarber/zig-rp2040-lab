@@ -22,3 +22,7 @@ Another question that comes to mind is how does MicroZig handle USB communicatio
 
 It seems that tinyusb may actually [depend on the pico-sdk](https://github.com/hathach/tinyusb/blob/master/src/portable/raspberrypi/rp2040/rp2040_usb.h). This makes me lean towards the UART option.
 
+## UART-to-USB
+
+I have purchased a UART-to-USB adapter ([this one](https://www.amazon.com/dp/B0FJRTL572?th=1)), and am planning on going that route. While I was ordering stuff, I also ordered some more RP2040 boards that have two conveniences I desired: USB-C and a reset button.
+
