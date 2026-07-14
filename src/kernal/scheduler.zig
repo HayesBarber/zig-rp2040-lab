@@ -11,7 +11,7 @@ fn initSystick() void {
 
 var TICK_COUNTER: u32 = 0;
 
-pub fn isr_systick() callconv(.c) void {
+pub fn sysTickISR() callconv(.c) void {
     TICK_COUNTER += 1;
     if (TICK_COUNTER < 50) return;
     TICK_COUNTER = 0;

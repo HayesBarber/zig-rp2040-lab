@@ -30,7 +30,7 @@ const VectorTable = extern struct {
 export const vector_table align(256) linksection(".vectors") = VectorTable{
     .initial_sp = &__stack_top,
     .reset = &_start,
-    .systick = &kernal.scheduler.isr_systick,
+    .systick = &kernal.scheduler.sysTickISR,
 };
 
 fn copy_data_and_bss() void {
