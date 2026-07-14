@@ -24,4 +24,6 @@ pub fn initClocks() void {
     mmio.pll_sys_clr.pwr = 1 << 3;
 
     mmio.clocks.clk_sys_ctrl = 0x1;
+
+    mmio.clocks.clk_peri_ctrl = (1 << 11) | (0x1 << 5);
 }

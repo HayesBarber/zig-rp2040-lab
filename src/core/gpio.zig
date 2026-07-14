@@ -30,12 +30,8 @@ pub fn turnOffLED() void {
 }
 
 pub fn ledInit() void {
-    // IO BANK
-    mmio.putAddr(0x4000f000, (1 << 5));
-    // Reset done?
-    while ((mmio.getAddr(0x4000c008) & (1 << 5)) == 0) {}
-    // IO PAD = FUNC 5 (GPIO)
-    mmio.putAddr(0x400140cc, 0x05);
-    // GPIO_OE
+    mmio.resets_clr.reset = 1 << 5;
+    while ((mmio.resets.reset_done & (1 << 5)) == 0) {}
+    mmio.iobank0.gpio[25].ctrl = 0x05;
     mmio.putAddr(0xd0000020, (1 << 25));
 }

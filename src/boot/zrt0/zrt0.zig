@@ -1,4 +1,5 @@
 const root = @import("root");
+const core = @import("core");
 const kernal = @import("kernal");
 
 comptime {
@@ -56,7 +57,10 @@ fn copy_data_and_bss() void {
 export fn _start() callconv(.c) noreturn {
     copy_data_and_bss();
 
-    kernal.scheduler.start();
+    core.gpio.ledInit();
+    core.clocks.initClocks();
+    core.uart.initUart();
+    kernal.scheduler.init();
     root.main();
     while (true) {
         asm volatile ("wfi");
