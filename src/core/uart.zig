@@ -4,9 +4,6 @@ pub fn initUart() void {
     mmio.resets_clr.reset = 1 << 22;
     while ((mmio.resets.reset_done & (1 << 22)) == 0) {}
 
-    mmio.resets_clr.reset = 1 << 5;
-    while ((mmio.resets.reset_done & (1 << 5)) == 0) {}
-
     mmio.iobank0.gpio[0].ctrl = 2;
     mmio.iobank0.gpio[1].ctrl = 2;
 

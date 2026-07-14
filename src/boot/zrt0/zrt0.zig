@@ -57,6 +57,7 @@ fn copy_data_and_bss() void {
 export fn _start() callconv(.c) noreturn {
     copy_data_and_bss();
 
+    core.gpio.resetIOBank0();
     core.gpio.ledInit();
     core.clocks.initClocks();
     core.uart.initUart();
