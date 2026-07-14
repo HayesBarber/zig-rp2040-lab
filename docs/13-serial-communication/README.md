@@ -29,10 +29,35 @@ I have purchased a UART-to-USB adapter ([this one](https://www.amazon.com/dp/B0F
 The RP2040 has 2 identical UART peripherals: UART0 and UART1. My understanding is that the initialization is the same, just different address. We will plan on using UART0. The sequence for setting it up is as follows:
 
 1. Configure `clk_peri` to use `clk_sys`
-  - Within `CLK_PERI_CTRL` register, set bit 11 to enable, and AUXSRC bits to `CLKSRC_PLL_SYS`
+  - Within `CLK_PERI_CTRL` register, set bit 11 to enable, and AUXSRC bits (7:5) to `CLKSRC_PLL_SYS` (0x1)
 2. Bring UART0 out of reset
   - Use atomic address to clear `RESET` bit 22 for UART0
   - Poll `RESET_DONE` bit 22 for a 1 to ensure reset is done
+3. Configure GPIO pins 0 and 1 for use with UART
+  - Bring IOBank0 out of reset by using atomic clear on `RESET` register bit 5
+  - Poll `RESET_DONE` bit 5 for a 1 to ensure reset is done
+  - Enable function 2 (UART TX and RX per `2.19.2`) in `GPIO0_CTRL` and `GPIO1_CTRL` (offsets 0x4 and 0xc from IOBank0 registers at `0x40014000`)
+4. Disable UART so we can configure it
+  - Since we are using UART0, base address of registers is `0x40034000`
+  - `UARTCR` is the control register at offset 0x30, write a 0 to it
+5. Configure baud rate
+  - Per `4.2.7.1` for a baud rate of 115200 and UARTCLK = 125MHz
+  - BRDI=67 and BRDF=52
+  - Store 67 in `UARTIBRD` (offset 0x24 from UART0 base)
+  - Store 52 in `UARTFBRD` (offset 0x28 from UART0 base)
+6. Set word length and enable FIFOs
+  - Use `UARTLCR_H` register (offset  0x2c from UART0 base) to set bits 4, 5, and 6
+  - Bit 4 enableds FIFOs
+  - Bits 6:5 sets word length to 8
+7. Enable UART
+  - Use `UARTCR` again but now set bits 0, 8, and 9
+  - Bit 0 enables UART
+  - Bit 8 enables transmit
+  - Bit 9 enables recieve
+8. Send data
+  - todo
+9. Recieve data
+  - todo
 
 ## References
 
