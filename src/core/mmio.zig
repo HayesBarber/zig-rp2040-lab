@@ -73,20 +73,13 @@ pub const pll_sys_clr = mmio(PllSysRegs, PLL_SYS_BASE + 0x3000);
 const UART0_BASE = 0x40034000;
 const UartRegs = extern struct {
     dr: u32,
-    rsr: u32,
-    _pad0: [4]u32,
+    _pad0: [5]u32,
     fr: u32,
-    _pad1: u32,
-    ilpr: u32,
+    _pad1: [2]u32,
     ibrd: u32,
     fbrd: u32,
     lcr_h: u32,
     cr: u32,
-    ifls: u32,
-    imsc: u32,
-    ris: u32,
-    mis: u32,
-    icr: u32,
 };
 pub const uart0 = mmio(UartRegs, UART0_BASE);
 
