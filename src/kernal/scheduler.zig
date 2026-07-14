@@ -19,6 +19,6 @@ pub fn isr_systick() callconv(.c) void {
     core.gpio.toggleLED();
 }
 
-pub fn init() void {
+pub fn start() void {
     initSystick();
 }
