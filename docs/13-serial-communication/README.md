@@ -26,7 +26,7 @@ It seems that tinyusb may actually [depend on the pico-sdk](https://github.com/h
 
 I have purchased a UART-to-USB adapter ([this one](https://www.amazon.com/dp/B0FJRTL572?th=1)), and am planning on going that route. While I was ordering stuff, I also ordered some more RP2040 boards that have two conveniences I desired: USB-C and a reset button.
 
-The RP2040 has 2 identical UART peripherals: UART0 and UART1. My understanding is that the initialization is the same, just different address. We will plan on using UART0. The sequence for setting it up is as follows:
+The RP2040 has 2 identical UART peripherals: UART0 and UART1. My understanding is that the initialization is the same, just different addresses. We will plan on using UART0. The sequence for setting it up is as follows:
 
 1. Configure `clk_peri` to use `clk_sys`
   - Within `CLK_PERI_CTRL` register, set bit 11 to enable, and AUXSRC bits (7:5) to `CLKSRC_PLL_SYS` (0x1)
@@ -55,9 +55,16 @@ The RP2040 has 2 identical UART peripherals: UART0 and UART1. My understanding i
   - Bit 8 enables transmit
   - Bit 9 enables recieve
 8. Send data
-  - todo
+  - The `UARTDR` register (offset 0x0 from UART0 base) is the data register
+  - Bits 7:0 are the data bits to read and write
+  - To send data, first check if the TX FIFO is full by reading bit 5 of `UARTFR` register (offset 0x18 from UART0 base)
+    - If 1, FIFO is full so loop back
+    - If 0, then we can write to the data register
+  - Start and stop bits are handled automatically
 9. Recieve data
-  - todo
+  - Read bit 4 of `UARTFR`
+    - If 1, FIFO is empty (no data)
+    - If 0, read data from `UARTDR`
 
 ## References
 
