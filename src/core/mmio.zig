@@ -45,6 +45,9 @@ const ClocksRegs = extern struct {
     clk_ref_div: u32,
     clk_ref_selected: u32,
     clk_sys_ctrl: u32,
+    clk_sys_div: u32,
+    clk_sys_selected: u32,
+    clk_peri_ctrl: u32,
 };
 pub const clocks = mmio(ClocksRegs, CLOCKS_BASE);
 
@@ -66,3 +69,26 @@ const PllSysRegs = extern struct {
 };
 pub const pll_sys = mmio(PllSysRegs, PLL_SYS_BASE);
 pub const pll_sys_clr = mmio(PllSysRegs, PLL_SYS_BASE + 0x3000);
+
+const UART0_BASE = 0x40034000;
+const UartRegs = extern struct {
+    dr: u32,
+    _pad0: [5]u32,
+    fr: u32,
+    _pad1: [2]u32,
+    ibrd: u32,
+    fbrd: u32,
+    lcr_h: u32,
+    cr: u32,
+};
+pub const uart0 = mmio(UartRegs, UART0_BASE);
+
+const IO_BANK0_BASE = 0x40014000;
+const GpioCtrl = extern struct {
+    status: u32,
+    ctrl: u32,
+};
+const IOBank0Regs = extern struct {
+    gpio: [30]GpioCtrl,
+};
+pub const iobank0 = mmio(IOBank0Regs, IO_BANK0_BASE);

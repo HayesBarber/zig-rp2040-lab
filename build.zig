@@ -68,6 +68,11 @@ pub fn build(b: *std.Build) void {
         "zig-rp2040-lab.uf2",
     );
     b.getInstallStep().dependOn(&install_uf2.step);
+
+    const load_step = b.step("load", "Load firmware to Pico via picotool");
+    const load_cmd = b.addSystemCommand(&.{ "picotool", "load", "-uxf" });
+    load_cmd.addFileArg(uf2_file);
+    load_step.dependOn(&load_cmd.step);
 }
 
 fn build_boot2(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) std.Build.LazyPath {

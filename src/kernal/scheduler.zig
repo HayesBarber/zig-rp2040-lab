@@ -11,16 +11,15 @@ fn initSystick() void {
 
 var TICK_COUNTER: u32 = 0;
 
-pub fn isr_systick() callconv(.c) void {
+pub fn sysTickISR() callconv(.c) void {
     TICK_COUNTER += 1;
-    if (TICK_COUNTER < 50) return;
+    if (TICK_COUNTER < 1000) return;
     TICK_COUNTER = 0;
 
     core.gpio.toggleLED();
+    core.uart.print("hello UART!\n\r");
 }
 
 pub fn start() void {
-    core.gpio.ledInit();
-    core.clocks.initClocks();
     initSystick();
 }
