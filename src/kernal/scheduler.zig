@@ -13,10 +13,11 @@ var TICK_COUNTER: u32 = 0;
 
 pub fn sysTickISR() callconv(.c) void {
     TICK_COUNTER += 1;
-    if (TICK_COUNTER < 50) return;
+    if (TICK_COUNTER < 1000) return;
     TICK_COUNTER = 0;
 
     core.gpio.toggleLED();
+    core.uart.print("hello UART!");
 }
 
 pub fn start() void {
