@@ -73,6 +73,8 @@ We now have UART working! zrt0 calls the `initUart` to perform the sequence desc
 1. Wire up GPIO0 on the pico (TX) to the RX pin on the adapter, and pico ground to the adapter's ground
 2. Use a tool to listen to the serial port. I am using [picocom](https://github.com/npat-efault/picocom) (`brew install picocom`): `picocom -b 115200 /dev/cu.usbserial-0001`
 
+I will consider implementing Zig's reader/writer interfaces so I can get string formatting. I have heard that changed a lot in 0.16, and will cross that bridge when I get there (probably soon).
+
 ## References
 
 - https://youtu.be/MUT6ZubKS3w?si=CVum4dLJZ9pARr3v
