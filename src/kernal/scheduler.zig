@@ -11,7 +11,7 @@ const SYSTICK_ENABLE_BITMASK = 0x7;
 const PENDSVSET = 1 << 28;
 const PENDSV_PRI_LOWEST = 0b11 << 22;
 
-var tasks = blk: {
+const TASKS = blk: {
     const group = root.setup();
     var arr: [group.task_entries.len]Task = undefined;
     for (&arr, group.task_entries) |*t, e| {
@@ -19,6 +19,7 @@ var tasks = blk: {
     }
     break :blk arr;
 };
+var ticks: u32 = 0;
 
 fn initSysTick() void {
     mmio.systick.rvr = SYSTICK_RELOAD_VALUE;
@@ -32,8 +33,6 @@ fn setPendSVPriority() void {
 inline fn setPendSVPending() void {
     mmio.scb.icsr = PENDSVSET;
 }
-
-var ticks: u32 = 0;
 
 pub fn sysTickISR() callconv(.c) void {
     ticks += 1;
@@ -50,7 +49,7 @@ pub fn start() noreturn {
     initSysTick();
 
     while (true) {
-        for (&tasks) |t| {
+        for (&TASKS) |t| {
             t.entry();
         }
     }
