@@ -17,7 +17,7 @@ pub fn sysTickISR() callconv(.c) void {
     TICK_COUNTER = 0;
 
     core.gpio.toggleLED();
-    core.uart.print("hello UART!");
+    core.uart.print("hello UART!\n\r");
 }
 
 pub fn start() void {
