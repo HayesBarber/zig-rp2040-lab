@@ -15,7 +15,7 @@ fn uartTask() void {
 
 fn computeTask() void {
     var i: u32 = 0;
-    while (i < 50000) : (i += 1) {
+    while (i < 5_000_000) : (i += 1) {
         asm volatile ("nop");
     }
 }

@@ -34,22 +34,25 @@ inline fn setPendSVPending() void {
     mmio.scb.icsr = PENDSVSET;
 }
 
-var TICK_COUNTER: u32 = 0;
+var ticks: u32 = 0;
 
 pub fn sysTickISR() callconv(.c) void {
-    TICK_COUNTER += 1;
-    if (TICK_COUNTER < 1000) return;
-    TICK_COUNTER = 0;
+    ticks += 1;
+    if (ticks < 1000) return;
+    ticks = 0;
 
     setPendSVPending();
 }
 
-pub fn pendsvISR() callconv(.c) void {
-    core.gpio.toggleLED();
-    core.uart.w_interface.print("hello UART!\n\r", .{}) catch {};
-}
+pub fn pendsvISR() callconv(.c) void {}
 
 pub fn start() void {
     setPendSVPriority();
     initSystick();
+
+    while (true) {
+        for (0..task_count) |i| {
+            tasks[i].entry();
+        }
+    }
 }
