@@ -11,6 +11,20 @@ fn mmio(comptime T: type, addr: u32) *volatile T {
 }
 
 const CORTEX_BASE = 0xe0000000;
+const SCB_BASE = CORTEX_BASE + 0xed00;
+const SCB = extern struct {
+    cpuid: u32,
+    icsr: u32,
+    vtor: u32,
+    aircr: u32,
+    scr: u32,
+    ccr: u32,
+    shpr1: u32,
+    shpr2: u32,
+    shpr3: u32,
+};
+pub const scb = mmio(SCB, SCB_BASE);
+
 const SYSTICK_BASE = CORTEX_BASE + 0xe010;
 const SysTick = extern struct {
     csr: u32,
