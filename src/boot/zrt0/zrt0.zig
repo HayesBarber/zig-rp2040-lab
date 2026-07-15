@@ -62,8 +62,9 @@ export fn _start() callconv(.c) noreturn {
     core.gpio.ledInit();
     core.clocks.initClocks();
     core.uart.initUart();
+    root.setup();
     kernal.scheduler.start();
-    root.main();
+
     while (true) {
         asm volatile ("wfi");
     }
