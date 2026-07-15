@@ -32,7 +32,7 @@ pub fn sysTickISR() callconv(.c) void {
 
 pub fn pendsvISR() callconv(.c) void {
     core.gpio.toggleLED();
-    core.uart.print("hello UART!\n\r");
+    core.uart.w_interface.print("hello UART!\n\r", .{}) catch {};
 }
 
 pub fn start() void {
