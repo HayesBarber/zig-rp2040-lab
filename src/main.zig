@@ -20,8 +20,12 @@ fn computeTask() void {
     }
 }
 
-pub fn setup() void {
-    kernal.scheduler.registerTask("blink", blinkTask);
-    kernal.scheduler.registerTask("uart", uartTask);
-    kernal.scheduler.registerTask("compute", computeTask);
+pub fn setup() kernal.task.TaskGroup {
+    return .{
+        .task_entries = &.{
+            .{ .name = "blink", .entry = blinkTask },
+            .{ .name = "uart", .entry = uartTask },
+            .{ .name = "compute", .entry = computeTask },
+        },
+    };
 }
