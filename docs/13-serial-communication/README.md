@@ -66,6 +66,13 @@ The RP2040 has 2 identical UART peripherals: UART0 and UART1. My understanding i
     - If 1, FIFO is empty (no data)
     - If 0, read data from `UARTDR`
 
+---
+
+We now have UART working! zrt0 calls the `initUart` to perform the sequence described above. Using the UART-to-USB adapter to we can now see output on my connected desktop via the following process:
+
+1. Wire up GPIO0 on the pico (TX) to the RX pin on the adapter, and pico ground to the adapter's ground
+2. Use a tool to listen to the serial port. I am using [picocom](https://github.com/npat-efault/picocom) (`brew install picocom`): `picocom -b 115200 /dev/cu.usbserial-0001`
+
 ## References
 
 - https://youtu.be/MUT6ZubKS3w?si=CVum4dLJZ9pARr3v
