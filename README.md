@@ -25,7 +25,7 @@ This is for learning purposes
 - [x] crt0
 - [x] zrt0
 - [x] System clocks
-- [ ] Serial communication
+- [x] Serial communication
 - [ ] Task registration API
 - [ ] Scheduler algorithm
 - [ ] Context switch
