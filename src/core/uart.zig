@@ -1,3 +1,4 @@
+const std = @import("std");
 const mmio = @import("mmio.zig");
 
 pub fn initUart() void {
@@ -27,8 +28,25 @@ pub fn getChar() u8 {
     return @truncate(mmio.uart0.dr);
 }
 
-pub fn print(msg: []const u8) void {
-    for (msg) |c| {
-        putChar(c);
+fn drain(w: *std.Io.Writer, data: []const []const u8, splat: usize) std.Io.Writer.Error!usize {
+    _ = w;
+    var total: usize = 0;
+    for (data[0 .. data.len - 1]) |buf| {
+        for (buf) |c| putChar(c);
+        total += buf.len;
     }
+    const pattern = data[data.len - 1];
+    for (0..splat) |_| {
+        for (pattern) |c| putChar(c);
+        total += pattern.len;
+    }
+    return total;
 }
+
+pub var w_interface = std.Io.Writer{
+    .vtable = &.{
+        .drain = drain,
+        .flush = std.Io.Writer.noopFlush,
+    },
+    .buffer = &.{},
+};
