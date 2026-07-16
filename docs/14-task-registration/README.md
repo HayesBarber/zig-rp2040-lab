@@ -13,3 +13,5 @@ I am thinking to start we will have tasks be comptime known. In `main.zig` the a
 
 Context switching is not implemented yet, so this initial implemenation will just be a super loop of tasks. When we get to that point we will need to push an initial stack frame onto each task's stack and set its stack pointer accordinly.
 
+If we eventually wanted dynamic task creation, I don't think it would too much more complicated. Mainly would need a heap allacotor to get stack memory and for the tasks buffer to be dynamic size.
+

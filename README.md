@@ -26,7 +26,7 @@ This is for learning purposes
 - [x] zrt0
 - [x] System clocks
 - [x] Serial communication
-- [ ] Task registration API
+- [x] Task registration API
 - [ ] Scheduler algorithm
 - [ ] Context switch
 - [ ] Telemetry
