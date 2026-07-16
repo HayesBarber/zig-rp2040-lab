@@ -3,7 +3,7 @@ const core = @import("core");
 const mmio = core.mmio;
 const task = @import("task.zig");
 
-pub const Task = task.Task;
+pub const TCB = task.TCB;
 
 const SYSTICK_RELOAD_VALUE = 125000 - 1; // 1 ms for 125MHz
 const SYSTICK_ENABLE_BITMASK = 0x7;
@@ -13,9 +13,12 @@ const PENDSV_PRI_LOWEST = 0b11 << 22;
 
 const TASKS = blk: {
     const group = root.setup();
-    var arr: [group.task_entries.len]Task = undefined;
+    var arr: [group.task_entries.len]TCB = undefined;
     for (&arr, group.task_entries) |*t, e| {
-        t.* = .{ .name = e.name, .entry = e.entry, .state = .Ready };
+        t.* = .{
+            .name = e.name,
+            .entry = e.entry,
+        };
     }
     break :blk arr;
 };
