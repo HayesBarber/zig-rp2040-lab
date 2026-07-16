@@ -55,7 +55,7 @@ fn copy_data_and_bss() void {
     @memcpy(data_start[0..data_len], data_src[0..data_len]);
 }
 
-export fn _start() callconv(.c) noreturn {
+export fn _start() noreturn {
     copy_data_and_bss();
 
     core.gpio.resetIOBank0();

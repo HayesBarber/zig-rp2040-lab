@@ -37,7 +37,7 @@ inline fn setPendSVPending() void {
     mmio.scb.icsr = PENDSVSET;
 }
 
-pub fn sysTickISR() callconv(.c) void {
+pub fn sysTickISR() void {
     ticks += 1;
     if (ticks < 1000) return;
     ticks = 0;
@@ -45,7 +45,7 @@ pub fn sysTickISR() callconv(.c) void {
     setPendSVPending();
 }
 
-pub fn pendsvISR() callconv(.c) void {}
+pub fn pendsvISR() callconv(.naked) void {}
 
 pub fn start() noreturn {
     setPendSVPriority();
