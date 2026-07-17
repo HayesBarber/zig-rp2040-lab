@@ -19,7 +19,8 @@ pub const TCB = struct {
     name: []const u8,
     entry: *const fn () void,
     state: State = .Ready,
-    time_slice: usize = 100,
+    quantum: usize = 100,
+    remaining_ticks: usize = 100,
     sp: usize = 0,
     stack: [STACK_SIZE]u8 align(8) = undefined,
 };

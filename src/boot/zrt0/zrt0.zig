@@ -30,6 +30,7 @@ const VectorTable = extern struct {
 export const vector_table align(256) linksection(".vectors") = VectorTable{
     .initial_sp = &__stack_top,
     .reset = &_start,
+    .hard_fault = &kernal.scheduler.hardFault,
     .pendsv = &kernal.scheduler.pendsvISR,
     .systick = &kernal.scheduler.sysTickISR,
 };

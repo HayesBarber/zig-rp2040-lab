@@ -12,8 +12,9 @@ Something that needs to be flushed out is the use of the main stack pointer (MSP
 
 Here is my understanding of the context switch sequence:
 
-- Task registration
-  - initializes task control blocks
+- Exit from boot2 using MSP. Operating in priveledged thread mode
+- zrt0 calls scheduler's `start()` function
+  - set PendSV priority
   - for each TCB's stack, push an initial stack frame
     - `PSR = 0x01000000` (thumb bit set, nothing else active)
     - `PC = @intFromPtr(task.entry)`
@@ -21,9 +22,7 @@ Here is my understanding of the context switch sequence:
     - `R0-R12 = 0` (order matters: `R12` -> `R3:0` -> `R11:4`)
     - `SP = R4` (bottom of initial frame)
       - Stack grows down
-- Exit from boot2 using MSP. Operating in priveledged thread mode
-- zrt0 calls scheduler's `start()` function
-  - set PendSV priority
+  - Set PSP to first task's SP
   - initialize SysTick
   - pend SV
   - `wfi` infinite loop
