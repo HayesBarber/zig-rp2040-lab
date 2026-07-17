@@ -100,17 +100,32 @@ pub fn start() noreturn {
     setPendSVPriority();
 
     for (&TASKS) |*t| {
-        const sp = @intFromPtr(&t.stack) + TCB.STACK_SIZE - 32;
-        @as(*[8]u32, @ptrFromInt(sp)).* = .{
-            0x01000000,
-            @intFromPtr(t.entry),
-            @intFromPtr(&taskExit),
-            0,
-            0,
-            0,
-            0,
-            0,
+        const stack_top = @intFromPtr(&t.stack) + TCB.STACK_SIZE;
+
+        // Reserve:
+        //   32 bytes for r4-r11 (saved by PendSV)
+        //   32 bytes for hardware exception frame
+        const sp = stack_top - 64;
+
+        // Hardware exception frame
+        const hw = @as(*[8]u32, @ptrFromInt(sp + 32));
+        hw.* = .{
+            0, // R0
+            0, // R1
+            0, // R2
+            0, // R3
+            0, // R12
+            @intFromPtr(&taskExit) | 1, // LR
+            @intFromPtr(t.entry) | 1, // PC
+            0x01000000, // xPSR (Thumb bit)
         };
+
+        // Software-saved registers.
+        @as(*[8]u32, @ptrFromInt(sp)).* = .{
+            0, 0, 0, 0, // r4-r7
+            0, 0, 0, 0, // r8-r11
+        };
+
         t.sp = sp;
         t.remaining_ticks = t.quantum;
     }
@@ -119,6 +134,7 @@ pub fn start() noreturn {
         :
         : [sp] "r" (TASKS[0].sp),
     );
+
     initSysTick();
     setPendSVPending();
     while (true) asm volatile ("wfi");
