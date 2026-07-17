@@ -1,6 +1,6 @@
 pub const TaskEntry = struct {
     name: []const u8,
-    entry: *const fn () void,
+    entry: *const fn () noreturn,
 };
 
 pub const TaskGroup = struct {
@@ -17,7 +17,7 @@ pub const TCB = struct {
     pub const STACK_SIZE = 1024;
 
     name: []const u8,
-    entry: *const fn () void,
+    entry: *const fn () noreturn,
     state: State = .Ready,
     quantum: usize = 100,
     remaining_ticks: usize = 100,
