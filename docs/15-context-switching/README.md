@@ -19,15 +19,11 @@ Here is my understanding of the context switch sequence:
     - `PC = @intFromPtr(task.entry)`
     - `LR   = @intFromPtr(taskExit)`
     - `R0-R12 = 0` (order matters: `R12` -> `R3:0` -> `R11:4`)
-    - `SP = top of stack`
-      - remember that the stack grows down, so we will be inserting these values at the end of the buffer
-      - `SP` will point at `R4`
+    - `SP = R4` (bottom of initial frame)
+      - Stack grows down
 - Exit from boot2 using MSP. Operating in priveledged thread mode
 - zrt0 calls scheduler's `start()` function
   - set PendSV priority
-  - set PSP to be the first task's SP
-  - Set `CONTROL` register bit 1 (`SPSEL`) to make PSP the current stack pointer
-    - Use `ISB` instruction after to flush pipeline
   - initialize SysTick
   - pend SV
   - `wfi` infinite loop
@@ -39,9 +35,8 @@ Here is my understanding of the context switch sequence:
   - Save `R4-R11` and `PSP` to task's TCB
   - Run scheduler logic to choose next task
   - Restore new task's `R4-R11` and `PSP`
-  - `EXC_RETURN` should be `FFFFFFFD` to return to thread mode and use PSP
-    - this is implicit, not actually returned from PendSV
-    - PendSV must preserve `LR` which holds `EXC_RETURN`
+  - Set `LR` to `FFFFFFFD`, which is the `EXC_RETURN` value to return to thread mode and use PSP
+  - `BX LR` for exception return
 
 > There could be a step in the sequence to exit priveledged thread mode, for now I will omit this
 
