@@ -165,7 +165,7 @@ pub fn start() noreturn {
         0, // R3
         0, // R12
         @intFromPtr(&taskExit) | 1, // LR
-        @intFromPtr(&TASKS[0].entry) | 1, // PC
+        @intFromPtr(TASKS[0].entry) | 1, // PC
         0x01000000, // xPSR (Thumb bit)
     };
     TASKS[0].sp = sp;
