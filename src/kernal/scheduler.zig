@@ -53,6 +53,7 @@ export fn taskExit() callconv(.c) noreturn {
 
 export fn schedulerSelectNext(old_sp: usize) callconv(.c) usize {
     TASKS[current_task_idx].sp = old_sp;
+    TASKS[current_task_idx].state = .Ready;
 
     const next = (current_task_idx + 1) % TASKS.len;
     current_task_idx = next;
@@ -153,6 +154,9 @@ pub fn start() noreturn {
 
         t.sp = sp;
     }
+
+    const stack_top = @intFromPtr(&TASKS[0].stack) + TCB.STACK_SIZE;
+    TASKS[0].sp = stack_top;
 
     asm volatile (
         \\msr psp, %[sp]
