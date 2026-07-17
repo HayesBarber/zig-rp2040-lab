@@ -8,12 +8,22 @@ comptime {
 fn blinkTask() noreturn {
     while (true) {
         core.gpio.toggleLED();
+
+        var i: u32 = 0;
+        while (i < 6_000_000) : (i += 1) {
+            asm volatile ("nop");
+        }
     }
 }
 
 fn uartTask() noreturn {
     while (true) {
         core.uart.w_interface.print("*", .{}) catch {};
+
+        var i: u32 = 0;
+        while (i < 4_000_000) : (i += 1) {
+            asm volatile ("nop");
+        }
     }
 }
 

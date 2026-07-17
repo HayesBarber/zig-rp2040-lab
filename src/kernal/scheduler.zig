@@ -124,7 +124,8 @@ pub fn hardFault() callconv(.c) noreturn {
 pub fn start() noreturn {
     setPendSVPriority();
 
-    for (&TASKS) |*t| {
+    for (1..TASKS.len) |i| {
+        var t = TASKS[i];
         const stack_top = @intFromPtr(&t.stack) + TCB.STACK_SIZE;
 
         // Reserve:
@@ -152,15 +153,20 @@ pub fn start() noreturn {
         };
 
         t.sp = sp;
-        t.remaining_ticks = t.quantum;
     }
 
-    asm volatile ("msr psp, %[sp]"
+    asm volatile (
+        \\msr psp, %[sp]
+        \\movs r0, #2
+        \\msr control, r0
+        \\isb
         :
         : [sp] "r" (TASKS[0].sp),
     );
 
     initSysTick();
-    setPendSVPending();
-    while (true) asm volatile ("wfi");
+
+    TASKS[0].state = .Running;
+    TASKS[0].entry();
+    taskExit();
 }
