@@ -21,6 +21,7 @@ Here is my understanding of the context switch sequence:
     - `R0-R12 = 0` (order matters: `R12` -> `R3:0` -> `R11:4`)
     - `SP = top of stack`
       - remember that the stack grows down, so we will be inserting these values at the end of the buffer
+      - `SP` will point at `R4`
 - Exit from boot2 using MSP. Operating in priveledged thread mode
 - zrt0 calls scheduler's `start()` function
   - set PendSV priority
@@ -31,15 +32,16 @@ Here is my understanding of the context switch sequence:
   - pend SV
   - `wfi` infinite loop
 - SysTick ISR decrements current task's time slice, checks for expiry, and pends SV accordingly
-- PendSV performs the context swith
+- PendSV performs the context switch
   - Use `callconv(.naked)` to preserve register values on function entry
     - This effectively will require PendSV to be pure asm
     - If we want scheduler logic to be Zig, we can branch to it from asm
   - Save `R4-R11` and `PSP` to task's TCB
-  - Run scheduler logic to choose next text
+  - Run scheduler logic to choose next task
   - Restore new task's `R4-R11` and `PSP`
   - `EXC_RETURN` should be `FFFFFFFD` to return to thread mode and use PSP
     - this is implicit, not actually returned from PendSV
+    - PendSV must preserve `LR` which holds `EXC_RETURN`
 
 > There could be a step in the sequence to exit priveledged thread mode, for now I will omit this
 
