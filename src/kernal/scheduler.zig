@@ -124,8 +124,7 @@ pub fn hardFault() callconv(.c) noreturn {
 pub fn start() noreturn {
     setPendSVPriority();
 
-    for (1..TASKS.len) |i| {
-        var t = TASKS[i];
+    for (TASKS[1..]) |*t| {
         const stack_top = @intFromPtr(&t.stack) + TCB.STACK_SIZE;
 
         // Reserve:
