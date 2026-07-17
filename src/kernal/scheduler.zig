@@ -172,7 +172,6 @@ pub fn start() noreturn {
 
     asm volatile (
         \\msr psp, %[p]
-        \\isb
         :
         : [p] "r" (TASKS[0].sp),
     );
