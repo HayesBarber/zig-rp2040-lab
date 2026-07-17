@@ -103,10 +103,9 @@ pub export fn pendsvISR() callconv(.naked) void {
 
         // Restore r4-r7
         \\ldmia r0!, {r4-r7}
-        \\adds r0, r0, #16 
 
         // PSP now points at hardware exception frame
-        \\msr psp, r0
+        \\msr psp, r1
 
         // Return to Thread mode using PSP
         \\ldr r0, =0xFFFFFFFD
