@@ -123,8 +123,7 @@ pub fn hardFault() callconv(.c) noreturn {
 }
 
 pub fn start() noreturn {
-    setPendSVPriority();
-
+    // build full stack frames for all tasks except 0
     for (TASKS[1..]) |*t| {
         const stack_top = @intFromPtr(&t.stack) + TCB.STACK_SIZE;
 
@@ -155,21 +154,30 @@ pub fn start() noreturn {
         t.sp = sp;
     }
 
+    // Only push half of the stack frame for task 0, since PendSV will push r4-r11 on the first context switch
     const stack_top = @intFromPtr(&TASKS[0].stack) + TCB.STACK_SIZE;
-    TASKS[0].sp = stack_top;
+    const sp = stack_top - 32;
+    const hw = @as(*[8]u32, @ptrFromInt(sp));
+    hw.* = .{
+        0, // R0
+        0, // R1
+        0, // R2
+        0, // R3
+        0, // R12
+        @intFromPtr(&taskExit) | 1, // LR
+        @intFromPtr(&TASKS[0].entry) | 1, // PC
+        0x01000000, // xPSR (Thumb bit)
+    };
+    TASKS[0].sp = sp;
 
     asm volatile (
-        \\msr psp, %[sp]
-        \\movs r0, #2
-        \\msr control, r0
+        \\msr psp, %[p]
         \\isb
         :
-        : [sp] "r" (TASKS[0].sp),
+        : [p] "r" (TASKS[0].sp),
     );
 
+    setPendSVPriority();
     initSysTick();
-
-    TASKS[0].state = .Running;
-    TASKS[0].entry();
     taskExit();
 }
