@@ -89,33 +89,10 @@ pub export fn pendsvISR() callconv(.naked) void {
 }
 
 pub fn hardFault() callconv(.c) noreturn {
-    const gpio_xor: *volatile u32 = @ptrFromInt(0xd000001c);
-
     while (true) {
-        var i: usize = 0;
-        while (i < 3) : (i += 1) {
-            gpio_xor.* = (1 << 25);
-            var d: usize = 0;
-            while (d < 3_000_000) : (d += 1) asm volatile ("nop");
-        }
-        var g: usize = 0;
-        while (g < 1_000_000) : (g += 1) asm volatile ("nop");
-        i = 0;
-        while (i < 3) : (i += 1) {
-            gpio_xor.* = (1 << 25);
-            var d: usize = 0;
-            while (d < 10_000_000) : (d += 1) asm volatile ("nop");
-        }
-        g = 0;
-        while (g < 1_000_000) : (g += 1) asm volatile ("nop");
-        i = 0;
-        while (i < 3) : (i += 1) {
-            gpio_xor.* = (1 << 25);
-            var d: usize = 0;
-            while (d < 3_000_000) : (d += 1) asm volatile ("nop");
-        }
-        var p: usize = 0;
-        while (p < 15_000_000) : (p += 1) asm volatile ("nop");
+        core.gpio.toggleLED();
+        var d: usize = 0;
+        while (d < 2_000_000) : (d += 1) asm volatile ("nop");
     }
 }
 
