@@ -51,27 +51,47 @@ export fn taskExit() callconv(.c) noreturn {
     }
 }
 
-export fn schedulerSelectNext() callconv(.c) usize {
-    TASKS[current_task_idx].state = .Ready;
+export fn schedulerSelectNext(old_sp: usize) callconv(.c) usize {
+    TASKS[current_task_idx].sp = old_sp;
+
     const next = (current_task_idx + 1) % TASKS.len;
     current_task_idx = next;
+
     TASKS[next].state = .Running;
     TASKS[next].remaining_ticks = TASKS[next].quantum;
+
     return TASKS[next].sp;
 }
 
 pub export fn pendsvISR() callconv(.naked) void {
     asm volatile (
+    // Save current task context
         \\mrs r0, psp
+
+        // Reserve space for r4-r11
         \\subs r0, r0, #32
+
+        // Save r4-r7
         \\stmia r0!, {r4-r7}
+
+        // Save r8-r11 through low registers
         \\mov r4, r8
         \\mov r5, r9
         \\mov r6, r10
         \\mov r7, r11
         \\stmia r0!, {r4-r7}
+
+        // r0 now points past saved context.
+        // Move back to beginning of saved context.
         \\subs r0, r0, #32
+
+        // Select next task
+        // r0 = current task SP
+        // r0 returned = next task SP
         \\bl schedulerSelectNext
+
+        // Restore next task context
+        // Restore r8-r11
         \\mov r1, r0
         \\adds r1, r1, #16
         \\ldmia r1!, {r4-r7}
@@ -79,9 +99,14 @@ pub export fn pendsvISR() callconv(.naked) void {
         \\mov r9, r5
         \\mov r10, r6
         \\mov r11, r7
+
+        // Restore r4-r7
         \\ldmia r0!, {r4-r7}
-        \\adds r0, r0, #16
+
+        // PSP now points at hardware exception frame
         \\msr psp, r0
+
+        // Return to Thread mode using PSP
         \\ldr r0, =0xFFFFFFFD
         \\mov lr, r0
         \\bx lr
