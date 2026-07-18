@@ -36,7 +36,7 @@ fn computeTask() noreturn {
     }
 }
 
-pub fn setup() kernal.task.TaskGroup {
+pub fn registerTasks() kernal.task.TaskGroup {
     return .{
         .task_entries = &.{
             .{ .name = "blink", .entry = blinkTask },
