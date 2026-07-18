@@ -65,10 +65,10 @@ Context switching is now working! I would like to discuss the details, and where
 
 Some other genreal notes on the code base:
 
-- The was some orginization for the kernel subdirectory structure
+- There was some orginization for the kernel subdirectory structure
   - Goal was to make files smaller and logically group things together
   - I recently discovered that I misspelled kernel in the code-base. IDK if I will fix that lol. Gives it some character
-- I have structured things to make scheduling algorithms swappable, for later comparisons
+- Things are structured to make scheduling algorithms swappable. Should support later comparisons
 - There is now a hard-fault ISR that rapidly blinks the LED
   - This was heavily used during this implementation due to pushing stack frames that led to hard faults
 
