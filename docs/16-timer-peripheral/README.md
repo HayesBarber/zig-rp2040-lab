@@ -4,3 +4,9 @@ In chapter 04 we covered timer interrupts, and landed on using SysTick to drive 
 
 While SysTick will continue to drive the context switch, I would like to see if the timer peripheral is viable to use for measuring latency. Even if it ends up not being precise enough, I don't think this will be a waste of time to learn!
 
+## Overview
+
+The timer peripheral is a 64-bit global monotonic microsecond timer. Being microsecond precision puts it at 1MHz. The datasheet descibes that, practically speaking, the timer won't overflow with a 64-bit counter at 1MHz taking thousands of years to hit capacity.
+
+With the timer being 64-bit, it needs to be broken up into it's upper and lower 32 bits. The are two pairs of registers to read/write respectively: `TIMEHR`/`TIMELR` and `TIMEHW`/`TIMELW`. I think these are read as "Time High Read" / "Time Low Read" etc.
+
