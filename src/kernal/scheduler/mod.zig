@@ -2,9 +2,7 @@ const root = @import("root");
 const task = @import("../task.zig");
 const stack_frame = @import("../util/stack_frame.zig");
 const armv6m = @import("../arch/armv6m/mod.zig");
-const policy = @import("policy.zig");
-
-pub const Policy = policy.Policy;
+const algorithm = @import("round_robin.zig");
 
 var tasks = blk: {
     const group = root.setup();
@@ -19,17 +17,11 @@ var tasks = blk: {
     break :blk entries;
 };
 var current_task_idx: usize = 0;
-var active_policy: Policy = .{ .round_robin = .{} };
+var active_algorithm: algorithm.Algorithm = .{};
 
 pub fn tick() bool {
     tasks[current_task_idx].remaining_ticks -= 1;
     return tasks[current_task_idx].remaining_ticks == 0;
-}
-
-/// Replace the task-selection policy at a safe point, not from an ISR or PendSV.
-/// Callers that replace a policy after `start` must prevent a concurrent context switch.
-pub fn setPolicy(new_policy: Policy) void {
-    active_policy = new_policy;
 }
 
 fn taskExit() noreturn {
@@ -43,7 +35,7 @@ pub export fn schedulerSelectNext(old_sp: usize) callconv(.c) usize {
     tasks[current_task_idx].sp = old_sp;
     tasks[current_task_idx].state = .Ready;
 
-    const next = active_policy.selectNext(&tasks, current_task_idx);
+    const next = active_algorithm.selectNext(&tasks, current_task_idx);
     current_task_idx = next;
 
     tasks[next].state = .Running;
