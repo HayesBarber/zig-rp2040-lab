@@ -27,9 +27,14 @@ This is for learning purposes
 - [x] System clocks
 - [x] Serial communication
 - [x] Task registration API
-- [ ] Scheduler algorithm
-- [ ] Context switch
+- [ ] Scheduler algorithm(s)
+  - [x] Super loop
+  - [x] Round robin
+  - [ ] ...
+- [x] Context switch
 - [ ] Telemetry
 - [ ] Synthetic workload / profiling
 - [ ] Heap allocator
+- [ ] Multicore scheduling
+  - [ ] Mutual exclusion
 

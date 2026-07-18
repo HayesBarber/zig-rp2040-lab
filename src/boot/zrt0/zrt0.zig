@@ -30,8 +30,9 @@ const VectorTable = extern struct {
 export const vector_table align(256) linksection(".vectors") = VectorTable{
     .initial_sp = &__stack_top,
     .reset = &_start,
-    .pendsv = &kernal.scheduler.pendsvISR,
-    .systick = &kernal.scheduler.sysTickISR,
+    .hard_fault = &kernal.isr.hard_fault.handler,
+    .pendsv = &kernal.isr.pendsv.handler,
+    .systick = &kernal.isr.systick.handler,
 };
 
 fn copy_data_and_bss() void {
@@ -62,7 +63,7 @@ export fn _start() noreturn {
     core.gpio.ledInit();
     core.clocks.initClocks();
     core.uart.initUart();
-    kernal.scheduler.start();
+    kernal.start();
 }
 
 pub fn init() void {}
