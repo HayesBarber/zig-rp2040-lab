@@ -2,6 +2,7 @@ const root = @import("root");
 const core = @import("core");
 const mmio = core.mmio;
 const task = @import("task.zig");
+const util = @import("util/mod.zig");
 
 pub const TCB = task.TCB;
 
@@ -123,52 +124,11 @@ pub fn hardFault() callconv(.c) noreturn {
 }
 
 pub fn start() noreturn {
-    // build full stack frames for all tasks except 0
+    const task_exit_addr = @intFromPtr(&taskExit) | 1;
+    util.stack_frame.initHardwareStackFrame(&TASKS[0], task_exit_addr);
     for (TASKS[1..]) |*t| {
-        const stack_top = @intFromPtr(&t.stack) + TCB.STACK_SIZE;
-
-        // Reserve:
-        //   32 bytes for r4-r11 (saved by PendSV)
-        //   32 bytes for hardware exception frame
-        const sp = stack_top - 64;
-
-        // Hardware exception frame
-        const hw = @as(*[8]u32, @ptrFromInt(sp + 32));
-        hw.* = .{
-            0, // R0
-            0, // R1
-            0, // R2
-            0, // R3
-            0, // R12
-            @intFromPtr(&taskExit) | 1, // LR
-            @intFromPtr(t.entry) | 1, // PC
-            0x01000000, // xPSR (Thumb bit)
-        };
-
-        // Software-saved registers.
-        @as(*[8]u32, @ptrFromInt(sp)).* = .{
-            0, 0, 0, 0, // r4-r7
-            0, 0, 0, 0, // r8-r11
-        };
-
-        t.sp = sp;
+        util.stack_frame.initFullStackFrame(t, task_exit_addr);
     }
-
-    // Only push half of the stack frame for task 0, since PendSV will push r4-r11 on the first context switch
-    const stack_top = @intFromPtr(&TASKS[0].stack) + TCB.STACK_SIZE;
-    const sp = stack_top - 32;
-    const hw = @as(*[8]u32, @ptrFromInt(sp));
-    hw.* = .{
-        0, // R0
-        0, // R1
-        0, // R2
-        0, // R3
-        0, // R12
-        @intFromPtr(&taskExit) | 1, // LR
-        @intFromPtr(TASKS[0].entry) | 1, // PC
-        0x01000000, // xPSR (Thumb bit)
-    };
-    TASKS[0].sp = sp;
 
     asm volatile (
         \\msr psp, %[p]
