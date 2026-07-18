@@ -2,14 +2,14 @@ const root = @import("root");
 const task = @import("../task.zig");
 const stack_frame = @import("../util/stack_frame.zig");
 const armv6m = @import("../arch/armv6m/mod.zig");
-const algorithm = @import("round_robin.zig");
+const algorithms = @import("algorithms/mod.zig");
 
 pub const MAX_TASKS = 8;
 
 var tasks: [MAX_TASKS]task.TCB = undefined;
 var task_count: usize = 0;
 var current_task_idx: usize = 0;
-var active_algorithm: algorithm.Algorithm = .{};
+const active_algorithm = algorithms.selected;
 
 fn registerTasks() void {
     const group = root.registerTasks();
@@ -56,6 +56,10 @@ pub fn start() noreturn {
     registerTasks();
 
     const registered_tasks = tasks[0..task_count];
+    if (!active_algorithm.requiresContextSwitch()) {
+        active_algorithm.run(registered_tasks);
+    }
+
     stack_frame.initHardwareStackFrame(&registered_tasks[0]);
     for (registered_tasks[1..]) |*t| {
         stack_frame.initFullStackFrame(t);
