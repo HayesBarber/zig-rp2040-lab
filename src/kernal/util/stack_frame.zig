@@ -1,7 +1,7 @@
 const task = @import("../task.zig");
 const TCB = task.TCB;
 
-pub fn initFullStackFrame(tcb: *TCB, task_exit_addr: usize) void {
+pub fn initFullStackFrame(tcb: *TCB) void {
     const stack_top = @intFromPtr(&tcb.stack) + TCB.STACK_SIZE;
 
     // Reserve:
@@ -12,11 +12,11 @@ pub fn initFullStackFrame(tcb: *TCB, task_exit_addr: usize) void {
         0, 0, 0, 0, // r4-r7
         0, 0, 0, 0, // r8-r11
     };
-    initHardwareStackFrame(tcb, task_exit_addr);
+    initHardwareStackFrame(tcb);
     tcb.sp = sp;
 }
 
-pub fn initHardwareStackFrame(tcb: *TCB, task_exit_addr: usize) void {
+pub fn initHardwareStackFrame(tcb: *TCB) void {
     const stack_top = @intFromPtr(&tcb.stack) + TCB.STACK_SIZE;
     const sp = stack_top - 32;
 
@@ -27,7 +27,7 @@ pub fn initHardwareStackFrame(tcb: *TCB, task_exit_addr: usize) void {
         0, // R2
         0, // R3
         0, // R12
-        task_exit_addr, // LR
+        @intFromPtr(tcb.exit) | 1, // LR
         @intFromPtr(tcb.entry) | 1, // PC
         0x01000000, // xPSR (Thumb bit)
     };

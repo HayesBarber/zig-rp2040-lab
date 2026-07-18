@@ -18,6 +18,7 @@ pub const TCB = struct {
 
     name: []const u8,
     entry: *const fn () noreturn,
+    exit: *const fn () noreturn,
     state: State = .Ready,
     quantum: usize = 100,
     remaining_ticks: usize = 100,

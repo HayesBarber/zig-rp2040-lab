@@ -19,6 +19,7 @@ var TASKS = blk: {
         t.* = .{
             .name = e.name,
             .entry = e.entry,
+            .exit = &taskExit,
         };
     }
     break :blk arr;
@@ -45,7 +46,7 @@ pub fn sysTickISR() void {
     }
 }
 
-export fn taskExit() callconv(.c) noreturn {
+fn taskExit() noreturn {
     while (true) {
         setPendSVPending();
         asm volatile ("wfi");
@@ -124,10 +125,9 @@ pub fn hardFault() callconv(.c) noreturn {
 }
 
 pub fn start() noreturn {
-    const task_exit_addr = @intFromPtr(&taskExit) | 1;
-    util.stack_frame.initHardwareStackFrame(&TASKS[0], task_exit_addr);
+    util.stack_frame.initHardwareStackFrame(&TASKS[0]);
     for (TASKS[1..]) |*t| {
-        util.stack_frame.initFullStackFrame(t, task_exit_addr);
+        util.stack_frame.initFullStackFrame(t);
     }
 
     asm volatile (
