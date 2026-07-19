@@ -2,7 +2,6 @@ const root = @import("root");
 const core = @import("core");
 const task = @import("../task.zig");
 const stack_frame = @import("../util/stack_frame.zig");
-const armv6m = @import("../arch/armv6m/mod.zig");
 const algorithms = @import("algorithms/mod.zig");
 
 pub const MAX_TASKS = 8;
@@ -36,7 +35,7 @@ pub fn tick() bool {
 
 fn taskExit() noreturn {
     while (true) {
-        armv6m.pendsv.request();
+        core.pendsv.request();
         asm volatile ("wfi");
     }
 }
@@ -74,7 +73,7 @@ pub fn start() noreturn {
         : [p] "r" (tasks[0].sp),
     );
 
-    armv6m.pendsv.setLowestPriority();
-    armv6m.systick.init();
+    core.pendsv.setLowestPriority();
+    core.systick.init();
     taskExit();
 }
