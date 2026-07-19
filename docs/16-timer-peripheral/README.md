@@ -66,3 +66,17 @@ Watchdog registers start at `0x40058000`:
 - `SCRATCH0:7`
 - `TICK`
 
+## Pre-implementation
+
+Implementation goals:
+
+- Core module:
+  - Provide APIs for mmio of timer and watchdog
+  - Provide timer APIs (microseconds/milliseconds since boot)
+- zrt0 module:
+  - Configure watchdog, but do not start it
+- Kernel module:
+  - Enable watchdog
+  - Feed wathdog during systick
+    - Consider performance impact of doing it _every_ SysTick
+
