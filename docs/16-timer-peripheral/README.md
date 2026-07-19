@@ -45,3 +45,11 @@ The sequence for enabling and writing to the watchdog is as follows:
 
 - 
 
+Watchdog registers start at `0x40058000`:
+
+- `CTRL`
+- `LOAD`
+- `REASON`
+- `SCRATCH0:7`
+- `TICK`
+
