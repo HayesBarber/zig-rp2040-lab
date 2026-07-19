@@ -31,3 +31,17 @@ Timer registers start at `0x40054000`:
 - `INTF`
 - `INTS`
 
+## Watchdog
+
+As mentioned above, the watchdog timer needs to be running for the timer peripheral to start counting, so lets look into that. Watchdog is section `4.7` of the datasheet.
+
+The idea of a watchdog timer is that is counts down to 0, and restarts stuff if it reaches zero. This is essentially a safety mechanism to help the program from getting stuck in a bad state. The program needs to periodically write a value to the watchdog to prevent it from reaching 0.
+
+The reason this needs to be running for the timer peripheral is because this tick is distrubted to the timer. The watchdog reference (`clk_tick`) is driven by `clk_ref`.
+
+There is a note in `4.7.3` that informs that, due to a logic error, the watchdog counter is decremented twice per tick, and that the program should double the intended count down value.
+
+The sequence for enabling and writing to the watchdog is as follows:
+
+- 
+
