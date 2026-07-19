@@ -97,6 +97,43 @@ const UartRegs = extern struct {
 };
 pub const uart0 = mmio(UartRegs, UART0_BASE);
 
+const TIMER_BASE = 0x40054000;
+const TimerRegs = extern struct {
+    timehw: u32,
+    timelw: u32,
+    timehr: u32,
+    timelr: u32,
+    alarm: [4]u32,
+    armed: u32,
+    timerawh: u32,
+    timerawl: u32,
+    dbgpause: u32,
+    pause: u32,
+    intr: u32,
+    inte: u32,
+    intf: u32,
+    ints: u32,
+};
+pub const timer = mmio(TimerRegs, TIMER_BASE);
+
+const WATCHDOG_BASE = 0x40058000;
+const WatchdogRegs = extern struct {
+    ctrl: u32,
+    load: u32,
+    reason: u32,
+    scratch: [8]u32,
+    tick: u32,
+};
+pub const watchdog = mmio(WatchdogRegs, WATCHDOG_BASE);
+
+const PSM_BASE = 0x40010000;
+const PsmRegs = extern struct {
+    frce_on: u32,
+    frce_off: u32,
+    wdsel: u32,
+};
+pub const psm = mmio(PsmRegs, PSM_BASE);
+
 const IO_BANK0_BASE = 0x40014000;
 const GpioCtrl = extern struct {
     status: u32,

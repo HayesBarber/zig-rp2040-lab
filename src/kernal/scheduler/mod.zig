@@ -1,4 +1,5 @@
 const root = @import("root");
+const core = @import("core");
 const task = @import("../task.zig");
 const stack_frame = @import("../util/stack_frame.zig");
 const armv6m = @import("../arch/armv6m/mod.zig");
@@ -54,6 +55,8 @@ pub export fn schedulerSelectNext(old_sp: usize) callconv(.c) usize {
 
 pub fn start() noreturn {
     registerTasks();
+
+    core.watchdog.enable();
 
     const registered_tasks = tasks[0..task_count];
     if (!active_algorithm.requiresContextSwitch()) {

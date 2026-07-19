@@ -48,7 +48,7 @@ The sequence for enabling and writing to the watchdog is as follows:
   - Since `clk_tick` is driven from `clk_ref`, and we the 12MHz XOSC for `clk_ref`, we will use a value of 12 for this
   - Cycles is number of `clk_tick` cycles that need to occur for the watchdog to tick itself
   - [pico-sdk reference](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h#L59)
-- Choose which system reset on watchdog reaching 0 using `WDSEL` register
+- Choose which systems reset on watchdog reaching 0 using `WDSEL` register
   - The datasheet shows an example of resetting everything except ROSC and XOSC (set all bits but 0 and 1)
   - `WDSEL` is in PSM registers located at `0x40010000` offset 0x8
 - Use `LOAD` register to load an intial value
@@ -79,4 +79,5 @@ Implementation goals:
   - Enable watchdog
   - Feed wathdog during systick
     - Consider performance impact of doing it _every_ SysTick
+  - Disable watchdog in hard-fault ISR to preserve rapid blinking LED
 

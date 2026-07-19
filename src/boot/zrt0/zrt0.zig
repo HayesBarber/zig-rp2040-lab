@@ -62,6 +62,7 @@ export fn _start() noreturn {
     core.gpio.resetIOBank0();
     core.gpio.ledInit();
     core.clocks.initClocks();
+    core.watchdog.configure();
     core.uart.initUart();
     kernal.start();
 }
