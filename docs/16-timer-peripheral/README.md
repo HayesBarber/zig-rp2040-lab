@@ -49,7 +49,7 @@ The sequence for enabling and writing to the watchdog is as follows:
   - Cycles is number of `clk_tick` cycles that need to occur for the watchdog to tick itself
   - [pico-sdk reference](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h#L59)
 - Choose which system reset on watchdog reaching 0 using `WDSEL` register
-  - The datasheet shows an example of resetting everything except ROSC and XOSC
+  - The datasheet shows an example of resetting everything except ROSC and XOSC (set all bits but 0 and 1)
   - `WDSEL` is in PSM registers located at `0x40010000` offset 0x8
 - Use `LOAD` register to load an intial value
   - Remember to double
