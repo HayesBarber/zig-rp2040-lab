@@ -44,7 +44,7 @@ There is a note in `4.7.3` that informs that, due to a logic error, the watchdog
 The sequence for enabling and writing to the watchdog is as follows:
 
 - Use `TICK` register to enable tick generation (bit 9) and configure cycles (bits 8:0)
-  - Cycles is essentially a divider
+  - "Cycles" bits are essentially a divider to get a 1 microsecond value
   - Since `clk_tick` is driven from `clk_ref`, and we the 12MHz XOSC for `clk_ref`, we will use a value of 12 for this
   - Cycles is number of `clk_tick` cycles that need to occur for the watchdog to tick itself
   - [pico-sdk reference](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h#L59)
