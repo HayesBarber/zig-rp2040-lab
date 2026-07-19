@@ -81,3 +81,13 @@ Implementation goals:
     - Consider performance impact of doing it _every_ SysTick
   - Disable watchdog in hard-fault ISR to preserve rapid blinking LED
 
+## Post-implementation
+
+- Added mmio for watchdog, psm, and timer
+- Created APIs for watchdog and timer
+- zrt0 calls watchdog configure API
+- Scheduler enables watchdog
+- SysTick feeds watchdog
+- Hard fault disables watchdog
+- Moved pendsv and systick APIs into core module
+
