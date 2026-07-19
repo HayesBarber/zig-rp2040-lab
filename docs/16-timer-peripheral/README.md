@@ -43,7 +43,20 @@ There is a note in `4.7.3` that informs that, due to a logic error, the watchdog
 
 The sequence for enabling and writing to the watchdog is as follows:
 
-- 
+- Use `TICK` register to enable tick generation (bit 9) and configure cycles (bits 8:0)
+  - Cycles is essentially a divider
+  - Since `clk_tick` is driven from `clk_ref`, and we the 12MHz XOSC for `clk_ref`, we will use a value of 12 for this
+  - Cycles is number of `clk_tick` cycles that need to occur for the watchdog to tick itself
+  - [pico-sdk reference](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_watchdog/include/hardware/watchdog.h#L59)
+- Choose which system reset on watchdog reaching 0 using `WDSEL` register
+  - The datasheet shows an example of resetting everything except ROSC and XOSC
+  - `WDSEL` is in PSM registers located at `0x40010000` offset 0x8
+- Use `LOAD` register to load an intial value
+  - Remember to double
+  - Or just use `0xffffff` for max value
+- Use `CTRL` register to enable watchdog (bit 30)
+- Periodically reload using `LOAD`
+  - SysTick could do it?
 
 Watchdog registers start at `0x40058000`:
 
