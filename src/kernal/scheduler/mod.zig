@@ -15,7 +15,7 @@ fn registerTasks() void {
         @trap();
     }
 
-    tasks = heap.allocator().alloc(task.TCB, group.task_entries.len) catch @trap();
+    tasks = heap.allocator.alloc(task.TCB, group.task_entries.len) catch @trap();
 
     for (group.task_entries, 0..) |entry, index| {
         const t = &tasks[index];
