@@ -35,10 +35,14 @@ var tasks: [MAX_TASKS]task.TCB = undefined;
 
 With MAX_TASKS, we are reserving more space than necessary if task count is less than MAX_TASKS, and with a 1KB task size that is valuable memory wasted.
 
+I am not sure if there is a performance hit other than the instrcutions involved with setting up the allocator and heap allocating itself (which would be an up front cost). Ultimitely the memory is still RAM.
+
 ## Post implementation
 
 The changes were as follows:
 
 - Define heap start and end addresses in the linker
 - Create a `heap.zig` in the kernel module that creates a `std.heap.FixedBufferAllocator` using those memory addresses
+- Update task buffer in the scheduler to heap allocate
+  - Simplifies code as we don't have to track task count and max tasks separately
 
