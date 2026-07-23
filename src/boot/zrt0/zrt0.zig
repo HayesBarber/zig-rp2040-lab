@@ -7,7 +7,6 @@ comptime {
 }
 
 extern const __initial_msp: u8;
-extern const __msp_end: u8;
 
 const VectorTable = extern struct {
     initial_sp: *const anyopaque,

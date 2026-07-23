@@ -25,3 +25,20 @@ The heap is essnetially all of memory between the end of .bss and the top of RAM
 |   .text    |
 |------------|
 ```
+
+With a heap allocator, we could put the TCB's on the heap. This would allow us to allocate dynamically based on exactly how many tasks are registered, rather than having MAX_TASKS.
+
+```zig
+pub const MAX_TASKS = 8;
+var tasks: [MAX_TASKS]task.TCB = undefined;
+```
+
+With MAX_TASKS, we are reserving more space than necessary if task count is less than MAX_TASKS, and with a 1KB task size that is valuable memory wasted.
+
+## Post implementation
+
+The changes were as follows:
+
+- Define heap start and end addresses in the linker
+- Create a `heap.zig` in the kernel module that creates a `std.heap.FixedBufferAllocator` using those memory addresses
+
