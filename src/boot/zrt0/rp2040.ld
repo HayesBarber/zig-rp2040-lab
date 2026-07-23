@@ -33,4 +33,7 @@ SECTIONS
     } > RAM
 
     zrt_data_load_start = LOADADDR(.data);
+
+    __heap_start = zrt_bss_end;
+    __heap_end = __msp_end;
 }
