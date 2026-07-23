@@ -8,6 +8,7 @@ The TCB currently holds each task's stack, so that memory is contained in the .b
 
 The heap is essnetially all of memory between the end of .bss and the top of RAM minus the MSP stack size. Here is some hand-typed ASCII art:
 
+```txt
 |------------|
 |    MSP     |
 |------------|
@@ -23,4 +24,4 @@ The heap is essnetially all of memory between the end of .bss and the top of RAM
 |------------|
 |   .text    |
 |------------|
-
+```
