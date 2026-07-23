@@ -11,13 +11,13 @@ The heap is essnetially all of memory between the end of .bss and the top of RAM
 ```txt
 |------------|
 |    MSP     |
-|------------|
+|------------| <-- msp end
 |            |
 |            |
 |   heap     |
 |            |
 |            |
-|------------|
+|------------| <-- .bss end
 |   .bss     |
 |------------|
 |   .data    |
