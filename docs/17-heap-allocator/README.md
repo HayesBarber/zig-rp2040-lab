@@ -4,3 +4,23 @@ I am not sure we 100% need/use a heap allocator, but I don't think it will hurt.
 
 At first glance I feel like we could define leftover space in the linker as a heap region, and then use a fixed buffer allocator in Zig.
 
+The TCB currently holds each task's stack, so that memory is contained in the .bss section (the global task buffer is `undefined` to start). The MSP starts at the top of RAM and will grow down. If we are going to use a fixed size buffer for the heap, then we will need to decide a stack size for MSP before it runs into the heap. We used 1KB for tasks, and I think that sounds reasonable for MSP unless I am proven otherwise.
+
+The heap is essnetially all of memory between the end of .bss and the top of RAM minus the MSP stack size. Here is some hand-typed ASCII art:
+
+|------------|
+|    MSP     |
+|------------|
+|            |
+|            |
+|   heap     |
+|            |
+|            |
+|------------|
+|   .bss     |
+|------------|
+|   .data    |
+|------------|
+|   .text    |
+|------------|
+
