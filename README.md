@@ -34,7 +34,7 @@ This is for learning purposes
 - [x] Context switch
 - [ ] Telemetry
 - [ ] Synthetic workload / profiling
-- [ ] Heap allocator
+- [x] Heap allocator
 - [ ] Multicore scheduling
   - [ ] Mutual exclusion
 
