@@ -4,7 +4,8 @@ MEMORY
     RAM(rwx)  : ORIGIN = 0x20000000, LENGTH = 256k
 }
 
-__stack_top = ORIGIN(RAM) + LENGTH(RAM);
+__initial_msp = ORIGIN(RAM) + LENGTH(RAM);
+__msp_end = ORIGIN(RAM) + LENGTH(RAM) - 1024;
 
 SECTIONS
 {
@@ -32,4 +33,7 @@ SECTIONS
     } > RAM
 
     zrt_data_load_start = LOADADDR(.data);
+
+    __heap_start = zrt_bss_end;
+    __heap_end = __msp_end;
 }

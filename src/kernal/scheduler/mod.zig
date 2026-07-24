@@ -1,21 +1,21 @@
 const root = @import("root");
 const core = @import("core");
+const heap = @import("../heap.zig");
 const task = @import("../task.zig");
 const stack_frame = @import("../util/stack_frame.zig");
 const algorithms = @import("algorithms/mod.zig");
 
-pub const MAX_TASKS = 8;
-
-var tasks: [MAX_TASKS]task.TCB = undefined;
-var task_count: usize = 0;
+var tasks: []task.TCB = &.{};
 var current_task_idx: usize = 0;
 const active_algorithm = algorithms.selected;
 
 fn registerTasks() void {
     const group = root.registerTasks();
-    if (group.task_entries.len == 0 or group.task_entries.len > MAX_TASKS) {
+    if (group.task_entries.len == 0) {
         @trap();
     }
+
+    tasks = heap.allocator.alloc(task.TCB, group.task_entries.len) catch @trap();
 
     for (group.task_entries, 0..) |entry, index| {
         const t = &tasks[index];
@@ -25,7 +25,6 @@ fn registerTasks() void {
             .exit = &taskExit,
         };
     }
-    task_count = group.task_entries.len;
 }
 
 pub fn tick() bool {
@@ -44,7 +43,7 @@ pub export fn schedulerSelectNext(old_sp: usize) callconv(.c) usize {
     tasks[current_task_idx].sp = old_sp;
     tasks[current_task_idx].state = .Ready;
 
-    const next = active_algorithm.selectNext(tasks[0..task_count], current_task_idx);
+    const next = active_algorithm.selectNext(tasks, current_task_idx);
     current_task_idx = next;
 
     tasks[next].state = .Running;
@@ -57,13 +56,12 @@ pub fn start() noreturn {
 
     core.watchdog.enable();
 
-    const registered_tasks = tasks[0..task_count];
     if (!active_algorithm.requiresContextSwitch()) {
-        active_algorithm.run(registered_tasks);
+        active_algorithm.run(tasks);
     }
 
-    stack_frame.initHardwareStackFrame(&registered_tasks[0]);
-    for (registered_tasks[1..]) |*t| {
+    stack_frame.initHardwareStackFrame(&tasks[0]);
+    for (tasks[1..]) |*t| {
         stack_frame.initFullStackFrame(t);
     }
 

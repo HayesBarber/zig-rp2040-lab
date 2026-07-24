@@ -6,7 +6,7 @@ comptime {
     _ = @import("bootrom");
 }
 
-extern const __stack_top: u8;
+extern const __initial_msp: u8;
 
 const VectorTable = extern struct {
     initial_sp: *const anyopaque,
@@ -28,7 +28,7 @@ const VectorTable = extern struct {
 };
 
 export const vector_table align(256) linksection(".vectors") = VectorTable{
-    .initial_sp = &__stack_top,
+    .initial_sp = &__initial_msp,
     .reset = &_start,
     .hard_fault = &kernal.isr.hard_fault.handler,
     .pendsv = &kernal.isr.pendsv.handler,
