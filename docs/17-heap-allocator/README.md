@@ -46,3 +46,9 @@ The changes were as follows:
 - Update task buffer in the scheduler to heap allocate
   - Simplifies code as we don't have to track task count and max tasks separately
 
+## A Note on FixedBufferAllocator
+
+After some research, turns out that the `FixedBufferAllocator` is not what I had thought. I was under the impression that it would be general purpose with arbitrary frees. Turns out it is more of a bump allocator, and will only free the last allocation.
+
+I don't think this is much of a problem for now. For an embedded system we may not be doing anything except long-lived allocations and very brief allocations and subsequent frees. Thankfully since there is a standard allocator interface, we can swap it out later by simply editing `heap.zig`.
+
