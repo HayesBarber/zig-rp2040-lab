@@ -42,5 +42,7 @@ The control flow for the blocking UART read will be as follows:
     - Mark task ready on both RX and RX timeout
     - Do not PendSV, let Systick handle
 
+For now we aren't implementing a new scheduler alogrithm, but the round robin should check that the next task is not blocked. We may also want to condisider a data oriented design instead of one big task buffer?
+
 ## Post Implementation
 
