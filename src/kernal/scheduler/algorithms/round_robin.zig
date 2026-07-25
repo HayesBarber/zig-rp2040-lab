@@ -6,6 +6,6 @@ pub const Algorithm = struct {
             const candidate = (current + offset + 1) % tasks.len;
             if (tasks[candidate].state != .Blocked) return candidate;
         }
-        @trap();
+        return current;
     }
 };
