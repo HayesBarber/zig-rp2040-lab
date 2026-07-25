@@ -8,9 +8,19 @@ To start we will have the kernal expose a UART receive API that blocks the task.
 
 A task blocked on UART may not be immediately scheduled upon recieving data, and the FIFO only holds like 32 bytes. We may want the ISR to clear the FIFO and write it to a ring buffer that is larger. We could also setup direct memory access (DMA), but I don't think I want to use this for RX.
 
-The ISR will also need to know which tasks are blocked on UART. It may only make sense that 1 task listen to UART unless we want to copy data into multiple places. Either way there can be either a task pointer or queue for the ISR to read/update.
+The ISR will also need to know which tasks are blocked on UART, so that it can unbock them. It may only make sense that 1 task listen to UART unless we want to copy data into multiple places. Either way there can be either a task pointer or queue for the ISR to read/update.
 
 ## `UARTRXINTR` / `UARTRTINTR` Interrupt Setup and Location in Vector Table
+
+The is a single interrupt for UART, and the ISR will determine the cause of the interrupt (RX, TX, etc). Section `2.3.2` of the datasheet shows the IRQ numbers, with UART0 being 20 and UART1 being 21 (we are only currently using UART0). As such, we will need to put the UART ISR in that location in the zrt0 vector table.
+
+Once the UART ISR is in the vector table, we also need to enable the interrupt using the `NVIC_ISER` register (offset `0xe100` from Cortex base). In this case we will set bit 20.
+
+Next we will configure the trigger level by using the `UARTIFLS` register bits 5:3 (offset `0x034` from UART base). Setting these bits to b0000 will set the trigger point to 1/8 full (4 bytes).
+
+Next we will enable `UARTRXINTR` and `UARTRTINTR` interrupt sources by using the `UARTIMSC` register (offset `0x038` from UART base). We will set bits 4 and 6.
+
+Lastly, for good measure, we will clear any pending UART interrupts at startup. We will use the `UARTICR` register (offset `0x044` from UART base) and set bits 4 and 6 (or just write max value to clear all).
 
 ## Control Flow
 
