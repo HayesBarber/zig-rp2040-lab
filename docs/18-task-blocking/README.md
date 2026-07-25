@@ -24,5 +24,21 @@ Lastly, for good measure, we will clear any pending UART interrupts at startup. 
 
 ## Control Flow
 
+The control flow for the blocking UART read will be as follows:
+
+- Kernel exposes a UART read API
+- A task invokes the read, and provides a buffer to place data
+- Internal to the API:
+  - Register this task as the current reader so that the ISR has a reference
+  - Invoke the scheduler to mark this task as blocked and schedule next
+  - Once this task is re-scheduled, copy data from UART ISR ring buffer to task buffer and return to task
+  - It will be up to the task to discern if that is all the data it needs or to wait for more
+- Internal to the ISR:
+  - Have a ring buffer to place data from the UART FIFO
+  - Drain the UART FIFO into the ring buffer
+  - If there is a task currently blocked, mark it as ready
+    - Need to determine if we should unblock only on timeout? Or when ring buffer is approaching full? Or on every RX?
+  - Potentially pend SV
+
 ## Post Implementation
 
