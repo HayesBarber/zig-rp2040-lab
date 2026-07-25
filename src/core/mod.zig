@@ -1,6 +1,8 @@
 pub const mmio = @import("mmio.zig");
 pub const gpio = @import("gpio.zig");
 pub const clocks = @import("clocks.zig");
+pub const data_structures = @import("data_structures/mod.zig");
+pub const interrupts = @import("interrupts.zig");
 pub const uart = @import("uart.zig");
 pub const timer = @import("timer.zig");
 pub const watchdog = @import("watchdog.zig");
