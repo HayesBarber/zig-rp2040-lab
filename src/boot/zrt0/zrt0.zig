@@ -25,6 +25,8 @@ const VectorTable = extern struct {
     reserved8: ?*const anyopaque = null,
     pendsv: ?*const anyopaque = null,
     systick: ?*const anyopaque = null,
+    external_interrupts: [20]?*const anyopaque = .{null} ** 20,
+    uart0: ?*const anyopaque = null,
 };
 
 export const vector_table align(256) linksection(".vectors") = VectorTable{
@@ -33,6 +35,7 @@ export const vector_table align(256) linksection(".vectors") = VectorTable{
     .hard_fault = &kernal.isr.hard_fault.handler,
     .pendsv = &kernal.isr.pendsv.handler,
     .systick = &kernal.isr.systick.handler,
+    .uart0 = &kernal.isr.uart.handler,
 };
 
 fn copy_data_and_bss() void {

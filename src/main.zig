@@ -17,13 +17,10 @@ fn blinkTask() noreturn {
 }
 
 fn uartTask() noreturn {
+    var buffer: [16]u8 = undefined;
     while (true) {
-        core.uart.w_interface.print("*", .{}) catch {};
-
-        var i: u32 = 0;
-        while (i < 4_000_000) : (i += 1) {
-            asm volatile ("nop");
-        }
+        const count = kernal.uart.read(&buffer);
+        for (buffer[0..count]) |byte| core.uart.putChar(byte);
     }
 }
 

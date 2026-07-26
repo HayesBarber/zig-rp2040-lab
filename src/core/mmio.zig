@@ -11,6 +11,11 @@ fn mmio(comptime T: type, addr: u32) *volatile T {
 }
 
 const CORTEX_BASE = 0xe0000000;
+const NvicRegs = extern struct {
+    iser: u32,
+};
+pub const nvic = mmio(NvicRegs, CORTEX_BASE + 0xe100);
+
 const SCB_BASE = CORTEX_BASE + 0xed00;
 const SCB = extern struct {
     cpuid: u32,
@@ -94,6 +99,11 @@ const UartRegs = extern struct {
     fbrd: u32,
     lcr_h: u32,
     cr: u32,
+    ifls: u32,
+    imsc: u32,
+    ris: u32,
+    mis: u32,
+    icr: u32,
 };
 pub const uart0 = mmio(UartRegs, UART0_BASE);
 

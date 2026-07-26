@@ -32,6 +32,17 @@ pub fn tick() bool {
     return tasks[current_task_idx].remaining_ticks == 0;
 }
 
+pub fn blockCurrent() *task.TCB {
+    const current = &tasks[current_task_idx];
+    current.state = .Blocked;
+    core.pendsv.request();
+    return current;
+}
+
+pub fn makeReady(t: *task.TCB) void {
+    if (t.state == .Blocked) t.state = .Ready;
+}
+
 fn taskExit() noreturn {
     while (true) {
         core.pendsv.request();
@@ -41,7 +52,9 @@ fn taskExit() noreturn {
 
 pub export fn schedulerSelectNext(old_sp: usize) callconv(.c) usize {
     tasks[current_task_idx].sp = old_sp;
-    tasks[current_task_idx].state = .Ready;
+    if (tasks[current_task_idx].state == .Running) {
+        tasks[current_task_idx].state = .Ready;
+    }
 
     const next = active_algorithm.selectNext(tasks, current_task_idx);
     current_task_idx = next;
