@@ -65,3 +65,4 @@ For now we aren't implementing a new scheduler alogrithm, but the round robin sh
   - Blocking the current task will pend SV and return a pointer to the blocked task
     - This needs to be in a critical section from the caller
 
+The UART task in `main.zig` now reads using the blocking API, and then echos whatever is read back to the TX UART. There is some latency when I tested it with `picocom`, but that is to be expected with round-robin and time slices off 100ms. If I lower the time quantum to 1 then the latency is gone. Also, I initially forgot that I needed to wire up the TX on the UART-to-USB adapter, which had me wondering what I did wrong. Thankfully that was a pretty quick realization.
