@@ -36,6 +36,8 @@ The control flow for the blocking UART read will be as follows:
   - Once this task is re-scheduled, copy data from UART ISR ring buffer to task buffer and return to task
   - It will be up to the task to discern if that is all the data it needs or to wait for more
 - Internal to the ISR:
+  - Check the interrupt source for RX/RX Timeout using the `UARTMIS` register
+    - Reading a 1 on a given bit means it's pending
   - Have a ring buffer to place data from the UART FIFO
   - Drain the UART FIFO into the ring buffer
   - If there is a task currently blocked, mark it as ready
@@ -45,4 +47,21 @@ The control flow for the blocking UART read will be as follows:
 For now we aren't implementing a new scheduler alogrithm, but the round robin should check that the next task is not blocked. We may also want to condisider a data oriented design instead of one big task buffer?
 
 ## Post Implementation
+
+- External interrupts added to the vector table struct in zrt0, with uart0 being specified in the actual instance
+- Ring Buffer data structure added. Drops new bytes when at capacity
+- Helper functions added for [CPS instructions](https://developer.arm.com/documentation/dui0646/c/The-Cortex-M7-Instruction-Set/Miscellaneous-instructions/CPS) to enable/disable interrupts for critical sections
+- The UART setup in the core module configures the interrupt as described above
+- The UART ISR checks the RX/RX Timeout, writes to the ring buffer, clears the interrupt, and marks waiting task as ready
+- The UART read API:
+  - Enters a critical section by disabling interrupts
+  - Checks if existing data is in the ring buffer, if so re-enable interrupts and return available
+  - Blocks the current task, and re-enables interrupts
+    - This will PendSV and schedule the next task
+  - Upon re-schedule, return the read from the ring buffer
+- The round robin scheduler now checks canidates for not being blocked
+  - If all tasks blocked, return the current task
+- The scheduler exposes APIs to block the current task, and make a task ready
+  - Blocking the current task will pend SV and return a pointer to the blocked task
+    - This needs to be in a critical section from the caller
 

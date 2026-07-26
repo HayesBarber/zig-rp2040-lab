@@ -32,7 +32,7 @@ This is for learning purposes
   - [x] Round robin
   - [ ] ...
 - [x] Context switch
-- [ ] Task blocking
+- [x] Task blocking
 - [ ] Telemetry
 - [ ] Synthetic workload / profiling
 - [x] Heap allocator

@@ -8,7 +8,16 @@ var rx_buffer: RxBuffer = .{};
 var waiting_task: ?*task.TCB = null;
 
 pub fn handler() void {
-    handleInterrupt();
+    if (!core.uart.receiveInterruptPending()) return;
+
+    while (core.uart.readFifo()) |byte| {
+        _ = rx_buffer.push(byte);
+    }
+    core.uart.clearReceiveInterrupts();
+
+    if (waiting_task) |blocked_task| {
+        scheduler.makeReady(blocked_task);
+    }
 }
 
 pub fn read(destination: []u8) usize {
@@ -27,17 +36,4 @@ pub fn read(destination: []u8) usize {
 
     waiting_task = null;
     return rx_buffer.read(destination);
-}
-
-fn handleInterrupt() void {
-    if (!core.uart.receiveInterruptPending()) return;
-
-    while (core.uart.readFifo()) |byte| {
-        _ = rx_buffer.push(byte);
-    }
-    core.uart.clearReceiveInterrupts();
-
-    if (waiting_task) |blocked_task| {
-        scheduler.makeReady(blocked_task);
-    }
 }
