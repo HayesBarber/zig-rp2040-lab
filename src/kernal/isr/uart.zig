@@ -14,12 +14,18 @@ pub fn handler() void {
     }
     core.uart.clearReceiveInterrupts();
 
-    if (waiting_task) |blocked_task| {
-        scheduler.instance.makeReady(blocked_task);
+    if (@hasDecl(scheduler.impl, "makeReady")) {
+        if (waiting_task) |blocked_task| {
+            scheduler.instance.makeReady(blocked_task);
+        }
     }
 }
 
 pub fn read(destination: []u8) usize {
+    if (!@hasDecl(scheduler.impl, "blockCurrent")) {
+        @compileError("Chosen scheduler implementation has no ability to block a task");
+    }
+
     if (destination.len == 0) return 0;
 
     core.interrupts.disable();
