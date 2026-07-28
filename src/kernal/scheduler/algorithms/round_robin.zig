@@ -1,9 +1,26 @@
 const root = @import("root");
 const core = @import("core");
 const heap = @import("../../heap.zig");
-const task = @import("../../task.zig");
 const stack_frame = @import("../../util/stack_frame.zig");
-const TCB = task.TCB;
+
+const State = enum {
+    Ready,
+    Running,
+    Blocked,
+};
+
+const TCB = struct {
+    pub const STACK_SIZE = 1024;
+
+    name: []const u8,
+    entry: *const fn () noreturn,
+    exit: *const fn () noreturn,
+    state: State = .Ready,
+    quantum: usize = 100,
+    remaining_ticks: usize = 100,
+    sp: usize = 0,
+    stack: [STACK_SIZE]u8 align(8) = undefined,
+};
 
 var tasks: []TCB = &.{};
 
@@ -35,12 +52,28 @@ fn registerTasks(_: *RoundRobin) void {
     }
 }
 
+pub fn init() RoundRobin {
+    return .{
+        .current_task_idx = 0,
+    };
+}
+
 pub fn setup(self: *RoundRobin) void {
     self.registerTasks();
     core.watchdog.enable();
-    stack_frame.initHardwareStackFrame(&tasks[0]);
+    tasks[0].sp = stack_frame.initHardwareStackFrame(
+        &tasks[0].stack,
+        TCB.STACK_SIZE,
+        tasks[0].entry,
+        tasks[0].exit,
+    );
     for (tasks[1..]) |*t| {
-        stack_frame.initFullStackFrame(t);
+        t.sp = stack_frame.initFullStackFrame(
+            &t.stack,
+            TCB.STACK_SIZE,
+            t.entry,
+            t.exit,
+        );
     }
 
     asm volatile (
@@ -50,12 +83,6 @@ pub fn setup(self: *RoundRobin) void {
     );
 
     core.pendsv.setLowestPriority();
-}
-
-pub fn init() RoundRobin {
-    return .{
-        .current_task_idx = 0,
-    };
 }
 
 pub fn start(_: *RoundRobin) noreturn {
@@ -88,13 +115,14 @@ pub fn tick(self: *const RoundRobin) bool {
     return tasks[self.current_task_idx].remaining_ticks == 0;
 }
 
-pub fn blockCurrent(self: *const RoundRobin) *TCB {
+pub fn blockCurrent(self: *const RoundRobin) *anyopaque {
     const current = &tasks[self.current_task_idx];
     current.state = .Blocked;
     core.pendsv.request();
     return current;
 }
 
-pub fn makeReady(_: *const RoundRobin, t: *TCB) void {
+pub fn makeReady(_: *const RoundRobin, task: *anyopaque) void {
+    var t: *TCB = @ptrCast(@alignCast(task));
     if (t.state == .Blocked) t.state = .Ready;
 }

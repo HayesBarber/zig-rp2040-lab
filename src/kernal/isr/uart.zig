@@ -1,11 +1,10 @@
 const core = @import("core");
 const scheduler = @import("../scheduler/mod.zig");
-const task = @import("../task.zig");
 
 const RxBuffer = core.data_structures.ring_buffer.RingBuffer(u8, 128);
 
 var rx_buffer: RxBuffer = .{};
-var waiting_task: ?*task.TCB = null;
+var waiting_task: ?*anyopaque = null;
 
 pub fn handler() void {
     if (!core.uart.receiveInterruptPending()) return;
