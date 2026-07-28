@@ -1,6 +1,5 @@
 const root = @import("root");
-const heap = @import("../../heap.zig");
-const task = @import("../../task.zig");
+const task = @import("../../../task.zig");
 const TaskGroup = task.TaskGroup;
 
 const tasks: TaskGroup = root.registerTasks();

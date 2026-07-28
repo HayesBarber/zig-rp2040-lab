@@ -1,26 +1,9 @@
 const root = @import("root");
 const core = @import("core");
-const heap = @import("../../heap.zig");
-const stack_frame = @import("../../util/stack_frame.zig");
-
-const State = enum {
-    Ready,
-    Running,
-    Blocked,
-};
-
-const TCB = struct {
-    pub const STACK_SIZE = 1024;
-
-    name: []const u8,
-    entry: *const fn () noreturn,
-    exit: *const fn () noreturn,
-    state: State = .Ready,
-    quantum: usize = 100,
-    remaining_ticks: usize = 100,
-    sp: usize = 0,
-    stack: [STACK_SIZE]u8 align(8) = undefined,
-};
+const heap = @import("../../../heap.zig");
+const stack_frame = @import("../../../util/stack_frame.zig");
+const tcb = @import("tcb.zig");
+const TCB = tcb.TCB;
 
 var tasks: []TCB = &.{};
 
