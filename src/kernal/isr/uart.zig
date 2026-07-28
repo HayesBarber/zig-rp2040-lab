@@ -16,7 +16,7 @@ pub fn handler() void {
     core.uart.clearReceiveInterrupts();
 
     if (waiting_task) |blocked_task| {
-        scheduler.makeReady(blocked_task);
+        scheduler.instance.makeReady(blocked_task);
     }
 }
 
@@ -31,7 +31,7 @@ pub fn read(destination: []u8) usize {
     }
 
     if (waiting_task != null) @trap();
-    waiting_task = scheduler.blockCurrent();
+    waiting_task = scheduler.instance.blockCurrent();
     core.interrupts.enable();
 
     waiting_task = null;

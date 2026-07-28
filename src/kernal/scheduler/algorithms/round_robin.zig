@@ -82,19 +82,19 @@ pub fn selectNext(self: *RoundRobin, old_sp: usize) usize {
     return tasks[self.current_task_idx].sp;
 }
 
-pub fn tick(self: *RoundRobin) bool {
+pub fn tick(self: *const RoundRobin) bool {
     core.watchdog.feed();
     tasks[self.current_task_idx].remaining_ticks -= 1;
     return tasks[self.current_task_idx].remaining_ticks == 0;
 }
 
-pub fn blockCurrent(self: *RoundRobin) *TCB {
+pub fn blockCurrent(self: *const RoundRobin) *TCB {
     const current = &tasks[self.current_task_idx];
     current.state = .Blocked;
     core.pendsv.request();
     return current;
 }
 
-pub fn makeReady(_: *RoundRobin, t: *TCB) void {
+pub fn makeReady(_: *const RoundRobin, t: *TCB) void {
     if (t.state == .Blocked) t.state = .Ready;
 }
