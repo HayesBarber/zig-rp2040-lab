@@ -153,3 +153,10 @@ const IOBank0Regs = extern struct {
     gpio: [30]GpioCtrl,
 };
 pub const iobank0 = mmio(IOBank0Regs, IO_BANK0_BASE);
+
+const SIO_BASE = 0xd0000000;
+const SPIN_LOCK_BASE = SIO_BASE + 0x100;
+const SpinLockRegs = extern struct {
+    locks: [32]u32,
+};
+pub const spin_locks = mmio(SpinLockRegs, SPIN_LOCK_BASE);

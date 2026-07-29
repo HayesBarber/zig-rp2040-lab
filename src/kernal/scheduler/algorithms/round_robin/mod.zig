@@ -2,10 +2,12 @@ const root = @import("root");
 const core = @import("core");
 const heap = @import("../../../heap.zig");
 const stack_frame = @import("../../../util/stack_frame.zig");
+const SpinLock = @import("../../../mutual-exclusion/spin_lock.zig");
 const tcb = @import("tcb.zig");
 const TCB = tcb.TCB;
 
 var tasks: []TCB = &.{};
+const lock: SpinLock = .init(0);
 
 const RoundRobin = @This();
 current_task_idx: usize,
