@@ -1,11 +1,10 @@
 const core = @import("core");
 const scheduler = @import("../scheduler/mod.zig");
-const task = @import("../task.zig");
 
 const RxBuffer = core.data_structures.ring_buffer.RingBuffer(u8, 128);
 
 var rx_buffer: RxBuffer = .{};
-var waiting_task: ?*task.TCB = null;
+var waiting_task: ?*anyopaque = null;
 
 pub fn handler() void {
     if (!core.uart.receiveInterruptPending()) return;
@@ -15,12 +14,18 @@ pub fn handler() void {
     }
     core.uart.clearReceiveInterrupts();
 
-    if (waiting_task) |blocked_task| {
-        scheduler.makeReady(blocked_task);
+    if (@hasDecl(scheduler.impl, "makeReady")) {
+        if (waiting_task) |blocked_task| {
+            scheduler.instance.makeReady(blocked_task);
+        }
     }
 }
 
 pub fn read(destination: []u8) usize {
+    if (!@hasDecl(scheduler.impl, "blockCurrent")) {
+        @compileError("Chosen scheduler implementation has no ability to block a task");
+    }
+
     if (destination.len == 0) return 0;
 
     core.interrupts.disable();
@@ -31,7 +36,7 @@ pub fn read(destination: []u8) usize {
     }
 
     if (waiting_task != null) @trap();
-    waiting_task = scheduler.blockCurrent();
+    waiting_task = scheduler.instance.blockCurrent();
     core.interrupts.enable();
 
     waiting_task = null;

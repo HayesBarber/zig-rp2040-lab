@@ -33,6 +33,8 @@ fn computeTask() noreturn {
     }
 }
 
+pub const SCHEDULER_ALGORITHM = kernal.SchedulingAlgorithms.round_robin;
+
 pub fn registerTasks() kernal.task.TaskGroup {
     return .{
         .task_entries = &.{
