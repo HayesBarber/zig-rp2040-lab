@@ -16,3 +16,46 @@ In Zig there is no formal interface, but there are a few patterns to get that be
 
 While I like the VTable approach, I am not sure that is great for the scheduler due to the fact that we probably won't be dynimcally creating these at runtime, and the cost of indirection. I don't think we necessarily _need_ to define an interface explicitly. As long as the cooperative/preemptive implementations have the expected methods, we should be able to swap them out with ease, and use comptime built-ins as needed.
 
+## Post Implementation
+
+Alrighty, I went with an approach that felt right for now. There is not an explicit "interface" as there is only one scheduler implementation active, and it is known at comptime. As compared to interface implementations that you create multiple of at runtime.
+
+The main driver of this is this neat Zig syntax:
+
+```zig
+pub const SchedulerImpl = switch (root.SCHEDULER_ALGORITHM) {
+    .round_robin => @import("round_robin/mod.zig"),
+    .super_loop => @import("super_loop/mod.zig"),
+};
+```
+
+Then `main.zig` defines the desired implementation:
+
+```zig
+pub const SCHEDULER_ALGORITHM = kernal.SchedulingAlgorithms.round_robin;
+```
+
+This allows for a comptime known type that I can easily swap out. Then, throughout the code base as needed, we check for `@hasDecl` before calling methods. For instance, running the scheudler only applies to preemptive algorithms:
+
+```zig
+pub export fn schedulerSelectNext(old_sp: usize) callconv(.c) usize {
+    if (!@hasDecl(impl, "selectNext")) {
+        unreachable;
+    }
+
+    return instance.selectNext(old_sp);
+}
+```
+
+And in some cases we can throw a `@compileError` if an API is used that needs a preemptive scheudler:
+
+```zig
+if (!@hasDecl(scheduler.impl, "blockCurrent")) {
+    @compileError("Chosen scheduler implementation has no ability to block a task");
+}
+```
+
+So now each scheduler implementation can just needs to meet this comptime known contract.
+
+I also moved the TCB inside the algorithm implementation, as I anticipate different algorithms needing different TCBs. `blockCurrent` and `makeReady` both take/return pointers to TCBs, so this was refactored for them to take/return `anyopaque` pointers. I don't think this will be a problem as all the caller really needs is a handle. If anything this is the exact use case for an opaque pointer.
+
