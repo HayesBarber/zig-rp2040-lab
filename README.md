@@ -36,6 +36,6 @@ This is for learning purposes
 - [ ] Telemetry
 - [ ] Synthetic workload / profiling
 - [x] Heap allocator
-- [ ] Multicore scheduling
-  - [ ] Mutual exclusion
+- [ ] Symmetric Multiprocessing
+- [ ] Mutual exclusion
 
