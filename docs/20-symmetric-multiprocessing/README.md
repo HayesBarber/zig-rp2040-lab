@@ -24,3 +24,15 @@ Before we even get to defining the sequence, we need to setup the inter-processo
 
 The implementation mirrors [how MicroZig does it](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L14). A simple struct with read/write operations to the inter-core fifo registers.
 
+### Starting Core 1
+
+The sequence to startup core 1 is as follows:
+
+1. Perform a rest on core 1
+  - Use `PSM` registers (base `0x40010000`)
+  - Set `PSM.FRCE_OFF.PROC1` (offset 0x4, bit 16)
+  - Poll this bit for a 1 to confirm core 1 reset is in the correct state
+  > Note that the Pico SDK would normally disable the SIO FIFO IRQ at this point, but we are not currently using the IRQ
+  - Clear `PSM.FRCE_OFF.PROC1`
+  - Core 1 will then clear its own FIFO, and send a 0 to core 0 which we can verify core 0 received
+
