@@ -8,3 +8,15 @@ Since the scheduler itself will be trying to obtain the lock, it won't be able t
 
 The goal will be to add a spinlock implementation for the kernel module. It should be multi-core safe, and handle interrupt enabling/disabling for the critical section of obtaining the lock.
 
+---
+
+Simple implementation that creates a SpinLock instance given a lock number, locks by reading the mmio location, and unlocks by writing to it.
+
+## Multi Core
+
+As mentioned in the chapter on multi-core, core 1 goes to sleep on boot up, and needs to be woken up by sending data over the inter-processor FIFOs. We can see how [MicroZig](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L72) and the [Pico SDK](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_multicore/multicore.c#L153) do this.
+
+### Inter-Processor Communication
+
+Before we even get to defining the sequence, we need to setup the inter-processor comms. We already went over what registers are involved with that in the multi-core chapter, but lets implement it.
+

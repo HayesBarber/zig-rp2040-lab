@@ -5,6 +5,9 @@ const SpinLock = @This();
 lock_num: u5,
 
 pub fn init(comptime lock_num: u5) SpinLock {
+    if (lock_num >= 32) {
+        @compileError("There are only 32 spinlocks on the RP2040");
+    }
     return .{
         .lock_num = lock_num,
     };
