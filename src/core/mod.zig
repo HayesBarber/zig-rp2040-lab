@@ -8,3 +8,4 @@ pub const timer = @import("timer.zig");
 pub const watchdog = @import("watchdog.zig");
 pub const systick = @import("systick.zig");
 pub const pendsv = @import("pendsv.zig");
+pub const multicore = @import("multicore.zig");
