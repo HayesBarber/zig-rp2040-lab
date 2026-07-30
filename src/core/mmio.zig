@@ -162,10 +162,10 @@ const SpinLockRegs = extern struct {
 };
 pub const spin_locks = mmio(SpinLockRegs, SPIN_LOCK_BASE);
 
-const MULTI_CORE_FIFO_BASE = SIO_BASE + 0x050;
-const MultiCoreFifoRegs = extern struct {
+const INTER_CORE_FIFO_BASE = SIO_BASE + 0x050;
+const InterCoreFifoRegs = extern struct {
     st: u32,
     wr: u32,
     rd: u32,
 };
-pub const multi_core_fifo = mmio(MultiCoreFifoRegs, MULTI_CORE_FIFO_BASE);
+pub const inter_core_fifo = mmio(InterCoreFifoRegs, INTER_CORE_FIFO_BASE);

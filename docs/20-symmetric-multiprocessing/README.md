@@ -20,3 +20,7 @@ As mentioned in the chapter on multi-core, core 1 goes to sleep on boot up, and 
 
 Before we even get to defining the sequence, we need to setup the inter-processor comms. We already went over what registers are involved with that in the multi-core chapter, but lets implement it.
 
+---
+
+The implementation mirrors [how MicroZig does it](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L14). A simple struct with read/write operations to the inter-core fifo registers.
+
