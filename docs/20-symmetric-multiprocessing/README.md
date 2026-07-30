@@ -28,7 +28,7 @@ The implementation mirrors [how MicroZig does it](https://github.com/ZigEmbedded
 
 The sequence to startup core 1 is as follows:
 
-1. Perform a rest on core 1
+1. Perform a reset on core 1 using atomic addresses
   - Use `PSM` registers (base `0x40010000`)
   - Set `PSM.FRCE_OFF.PROC1` (offset 0x4, bit 16)
   - Poll this bit for a 1 to confirm core 1 reset is in the correct state
