@@ -1,5 +1,6 @@
 const mmio = @import("mmio.zig");
 
+// mirrors MicroZig: https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L14
 pub const fifo = struct {
     pub fn canRead() bool {
         return mmio.inter_core_fifo.st & 1 == 1;
