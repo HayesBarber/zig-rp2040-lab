@@ -44,4 +44,18 @@ The sequence to startup core 1 is as follows:
   > Note that the Pico SDK would normally disable the SIO FIFO IRQ at this point, but we are not currently using the IRQ
   - Clear `PSM.FRCE_OFF.PROC1`
   - Core 1 will then clear its own FIFO, and send a 0 to core 0 which we can verify core 0 received
+2. Configure a stack for core 1
+  - We can heap allocate a 1KB stack like we do for tasks
+  - Push two items onto this stack:
+    - The entrypoint function
+    - The stack base pointer
+  - For the entrypoint, it will probably be the core 1's instance of the scheduler's `start` function, but will have to see how this plays out
+3. Perform handshake with core 1
+  - Prepare the sequence `0, 0, 1, VTOR, stack ptr, entrypoint trampoline`
+    - Note that the trampoline function will be what calls the _actual_ entrypoint, and will perform any necessary setup before doing so
+  - Send the sequence using the fifo
+    - Always draining before sending a 0
+    > note that both MicroZig and the Pico SDK do a `sev` after the drain when sending a 0. I am not sure why, as the subsequent write will `sev` anyway. I will omit it for now.
+  - Every element sent in the sequence should be echoed back from core 1, and the sequence should restart if that doesn't pan out
+  > Similar to resetting core 1, the Pico SDK disables the SIO FIFO IRQ, but we are not using it
 
