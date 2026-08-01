@@ -24,6 +24,15 @@ Before we even get to defining the sequence, we need to setup the inter-processo
 
 The implementation mirrors [how MicroZig does it](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L14). A simple struct with read/write operations to the inter-core fifo registers.
 
+## Atomic Addresses
+
+For future reference:
+
+- Address + 0x0000 -> normal access
+- Address + 0x1000 -> atomic XOR write
+- Address + 0x2000 -> atomic bitmask set write
+- Address + 0x3000 -> atomic bitmask clear write
+
 ### Starting Core 1
 
 The sequence to startup core 1 is as follows:
