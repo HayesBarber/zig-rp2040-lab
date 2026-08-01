@@ -169,6 +169,8 @@ const PsmRegs = extern struct {
     wdsel: u32,
 };
 pub const psm = mmio(PsmRegs, PSM_BASE);
+pub const psm_set = mmio(PsmRegs, PSM_BASE + 0x2000);
+pub const psm_clr = mmio(PsmRegs, PSM_BASE + 0x3000);
 
 const IO_BANK0_BASE = 0x40014000;
 const GpioCtrl = extern struct {
