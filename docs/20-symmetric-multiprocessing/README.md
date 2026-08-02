@@ -65,3 +65,15 @@ The implementation takes inspiration from both the Pico SDK and MicroZig. I thin
 
 I also still struggle to visualize the memory addresses when setting up stacks.
 
+### Multicore Scheduling
+
+With the API to start core 1 in place, we now want the scheduler algorithms to utilize it. We will create a enum that the `main.zig` file can utilize for a global variable to specify if the scheduler should be multicore or single core.
+
+I am thinking that the scheduler module can just always have two scheduler instances, and any code that invokes the scheduler should index based on core id (`CPUID` register is offset 0x0 from SIO base).
+
+Each scheduler algorithm should then accept a multicore flag into it's `setup` function, so that it can do any necessary setup. For instance, superloop will simply divide the tasks down the middle for each core to execute.
+
+Round robin will need a spinlock to protect the global task buffer.
+
+If multicore is selected, the scheduler module will invoke the API to start core 1, passing the reference to core 1's `start` function.
+
