@@ -73,7 +73,7 @@ I am thinking that the scheduler module can just always have two scheduler insta
 
 Each scheduler algorithm should then accept a multicore flag into it's `setup` function, so that it can do any necessary setup. For instance, superloop will simply divide the tasks down the middle for each core to execute.
 
-Round robin will need a spinlock to protect the global task buffer.
+Round robin will need a spinlock to protect the global task buffer. Additionally, how will it handle the fact that the first task only pushes the hardware stack frame? I think we will assign core 0 task 0, and core 1 task 1. So if multicore, push hardware stack frames for task 0 _and_ 1, and core 1's scheduler will initialize it's current task idx to 1. Also probably need to ensure when running the scheduler that it doesn't choose a task the other core is already running.
 
 If multicore is selected, the scheduler module will invoke the API to start core 1, passing the reference to core 1's `start` function.
 
