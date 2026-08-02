@@ -7,6 +7,10 @@ pub const Core1Entry = *const fn () noreturn;
 
 var core1_stack: [CORE1_STACK_SIZE]u8 align(8) = undefined;
 
+pub fn coreId() u1 {
+    return @truncate(mmio.sio.cpuid);
+}
+
 pub fn resetCore1() void {
     // Assert reset on core 1 via atomic set alias (offset 0x4, bit 16).
     mmio.psm_set.frce_off = PSM_FRCE_OFF_PROC1;
@@ -95,7 +99,7 @@ pub const fifo = struct {
     }
 
     pub fn drain() void {
-        while (read()) {}
+        while (read()) |_| {}
     }
 
     pub fn canWrite() bool {

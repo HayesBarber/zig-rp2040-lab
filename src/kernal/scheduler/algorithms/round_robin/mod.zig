@@ -19,7 +19,7 @@ fn taskExit() noreturn {
     }
 }
 
-fn registerTasks(_: *RoundRobin) void {
+fn registerTasks() void {
     const group = root.registerTasks();
     if (group.task_entries.len == 0) {
         @trap();
@@ -43,16 +43,28 @@ pub fn init() RoundRobin {
     };
 }
 
-pub fn setup(self: *RoundRobin) void {
-    self.registerTasks();
+pub fn initShared(multicore: bool) void {
+    registerTasks();
     core.watchdog.enable();
+
     tasks[0].sp = stack_frame.initHardwareStackFrame(
         &tasks[0].stack,
         TCB.STACK_SIZE,
         tasks[0].entry,
         tasks[0].exit,
     );
-    for (tasks[1..]) |*t| {
+
+    const first_full_frame: usize = if (multicore) blk: {
+        if (tasks.len < 2) @trap();
+        tasks[1].sp = stack_frame.initHardwareStackFrame(
+            &tasks[1].stack,
+            TCB.STACK_SIZE,
+            tasks[1].entry,
+            tasks[1].exit,
+        );
+        break :blk 2;
+    } else 1;
+    for (tasks[first_full_frame..]) |*t| {
         t.sp = stack_frame.initFullStackFrame(
             &t.stack,
             TCB.STACK_SIZE,
@@ -61,10 +73,20 @@ pub fn setup(self: *RoundRobin) void {
         );
     }
 
+    // Reserve each core's first task before Core 1 is launched. This keeps
+    // either core from selecting the other's initial PSP frame.
+    for (tasks[0..first_full_frame]) |*t| {
+        t.state = .Running;
+    }
+}
+
+pub fn initCore(self: *RoundRobin, core_id: usize, multicore: bool) void {
+    self.current_task_idx = if (multicore) core_id else 0;
+
     asm volatile (
         \\msr psp, %[p]
         :
-        : [p] "r" (tasks[0].sp),
+        : [p] "r" (tasks[self.current_task_idx].sp),
     );
 
     core.pendsv.setLowestPriority();
@@ -76,6 +98,9 @@ pub fn start(_: *RoundRobin) noreturn {
 }
 
 pub fn selectNext(self: *RoundRobin, old_sp: usize) usize {
+    const guard = lock.acquire();
+    defer guard.release();
+
     tasks[self.current_task_idx].sp = old_sp;
     if (tasks[self.current_task_idx].state == .Running) {
         tasks[self.current_task_idx].state = .Ready;
@@ -83,7 +108,7 @@ pub fn selectNext(self: *RoundRobin, old_sp: usize) usize {
 
     for (0..tasks.len) |offset| {
         const candidate = (self.current_task_idx + offset + 1) % tasks.len;
-        if (tasks[candidate].state != .Blocked) {
+        if (tasks[candidate].state == .Ready) {
             self.current_task_idx = candidate;
             break;
         }
@@ -94,20 +119,19 @@ pub fn selectNext(self: *RoundRobin, old_sp: usize) usize {
     return tasks[self.current_task_idx].sp;
 }
 
-pub fn tick(self: *const RoundRobin) bool {
+pub fn tick(self: *RoundRobin) bool {
     core.watchdog.feed();
     tasks[self.current_task_idx].remaining_ticks -= 1;
     return tasks[self.current_task_idx].remaining_ticks == 0;
 }
 
-pub fn blockCurrent(self: *const RoundRobin) *anyopaque {
+pub fn blockCurrent(self: *RoundRobin) *anyopaque {
     const current = &tasks[self.current_task_idx];
     current.state = .Blocked;
-    core.pendsv.request();
     return current;
 }
 
-pub fn makeReady(_: *const RoundRobin, task: *anyopaque) void {
+pub fn makeReady(_: *RoundRobin, task: *anyopaque) void {
     var t: *TCB = @ptrCast(@alignCast(task));
     if (t.state == .Blocked) t.state = .Ready;
 }

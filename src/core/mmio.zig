@@ -48,6 +48,11 @@ pub const systick = mmio(SysTick, SYSTICK_BASE);
 
 const SIO_BASE = 0xd0000000;
 
+const SioRegs = extern struct {
+    cpuid: u32,
+};
+pub const sio = mmio(SioRegs, SIO_BASE);
+
 const GPIO = extern struct {
     set: u32,
     clear: u32,
@@ -181,4 +186,3 @@ const IOBank0Regs = extern struct {
     gpio: [30]GpioCtrl,
 };
 pub const iobank0 = mmio(IOBank0Regs, IO_BANK0_BASE);
-
