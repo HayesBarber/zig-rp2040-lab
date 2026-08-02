@@ -24,7 +24,7 @@ Before we even get to defining the sequence, we need to setup the inter-processo
 
 The implementation mirrors [how MicroZig does it](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L14). A simple struct with read/write operations to the inter-core fifo registers.
 
-## Atomic Addresses
+### Atomic Addresses
 
 For future reference:
 
@@ -45,7 +45,7 @@ The sequence to startup core 1 is as follows:
   - Clear `PSM.FRCE_OFF.PROC1`
   - Core 1 will then clear its own FIFO, and send a 0 to core 0 which we can verify core 0 received
 2. Configure a stack for core 1
-  - We can heap allocate a 1KB stack like we do for tasks
+  - We can have a 1KB stack as a global var
   - Push two items onto this stack:
     - The entrypoint function
     - The stack base pointer
@@ -58,4 +58,10 @@ The sequence to startup core 1 is as follows:
     > note that both MicroZig and the Pico SDK do a `sev` after the drain when sending a 0. I am not sure why, as the subsequent write will `sev` anyway. I will omit it for now.
   - Every element sent in the sequence should be echoed back from core 1, and the sequence should restart if that doesn't pan out
   > Similar to resetting core 1, the Pico SDK disables the SIO FIFO IRQ, but we are not using it
+
+---
+
+The implementation takes inspiration from both the Pico SDK and MicroZig. I think the `core1Trampoline` is pretty neat, and is taken from the Pico SDK.
+
+I also still struggle to visualize the memory addresses when setting up stacks.
 
