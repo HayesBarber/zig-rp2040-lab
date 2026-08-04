@@ -103,7 +103,7 @@ pub const fifo = struct {
     }
 
     pub fn canWrite() bool {
-        return mmio.inter_core_fifo.st & (1 << 1) == 1;
+        return mmio.inter_core_fifo.st & (1 << 1) == (1 << 1);
     }
 
     pub fn write(value: u32) void {

@@ -21,9 +21,6 @@ pub fn handler() void {
 
     if (waiting_task) |blocked_task| {
         scheduler.makeReady(blocked_task);
-        // The wakeup consumes the single waiter slot. The resumed read only
-        // clears this field if it still refers to itself, so it cannot erase
-        // a newer waiter's registration.
         waiting_task = null;
     }
 }
