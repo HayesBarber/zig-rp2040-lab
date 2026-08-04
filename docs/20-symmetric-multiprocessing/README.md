@@ -79,3 +79,27 @@ If multicore is selected, the scheduler module will invoke the API to start core
 
 ## Post Implementation
 
+A summary of the changes are as follows:
+
+- Adds some new helper functions for disabling/restoring interrupts
+  - Returns/accepts primask
+  - This way we restore the exact state we left
+  - Used with spinlock, and should be generally safer for nested critical sections, ISRs, etc
+- Adds `multicore.zig`
+  - Inter-Processor FIFO implementation
+  - Functions to reset and launch core 1
+- Adds `spin_lock.zig`
+  - Uses the mmio spin locks
+  - Disables/restores interrupts
+- Refactor scheduler module for SMP
+  - Keep two instances of the scheduler, 1 for each core
+  - Current scheduler is retrieved by coreID
+  - Starting the scheduler will startup core 1, and it's scheduler's `start()` function has the entrypoint
+  - Algorithms are multicore:
+    - Super loop divides the tasks in half up front, and each core runs it's share
+    - Round robin:
+      - Has to push hardware frames accordingly for multicore/single core
+      - Uses a spinlock for shared task buffer
+- Application code can specify multicore or single core
+- UART kernal module was refactored to use a spinlock
+
