@@ -34,7 +34,7 @@ fn computeTask() noreturn {
 }
 
 pub const SCHEDULER_ALGORITHM = kernal.SchedulingAlgorithms.round_robin;
-pub const SCHEDULER_MODE = kernal.SchedulerMode.single_core;
+pub const SCHEDULER_MODE = kernal.SchedulerMode.multi_core;
 
 pub fn registerTasks() kernal.task.TaskGroup {
     return .{

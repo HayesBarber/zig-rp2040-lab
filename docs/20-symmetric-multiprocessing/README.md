@@ -77,3 +77,5 @@ Round robin will need a spinlock to protect the global task buffer. Additionally
 
 If multicore is selected, the scheduler module will invoke the API to start core 1, passing the reference to core 1's `start` function.
 
+## Post Implementation
+
