@@ -1,3 +1,5 @@
+// ---- Utility Functions ----
+
 pub fn putAddr(addr: u32, value: u32) void {
     @as(*volatile u32, @ptrFromInt(addr)).* = value;
 }
@@ -10,7 +12,10 @@ fn mmio(comptime T: type, addr: u32) *volatile T {
     return @ptrFromInt(addr);
 }
 
+// ---- Cortex-M0+ Core ----
+
 const CORTEX_BASE = 0xe0000000;
+
 const NvicRegs = extern struct {
     iser: u32,
 };
@@ -39,13 +44,37 @@ const SysTick = extern struct {
 };
 pub const systick = mmio(SysTick, SYSTICK_BASE);
 
-const GPIO_BASE = 0xd0000014;
+// ---- SIO (Single-Cycle IO) ----
+
+const SIO_BASE = 0xd0000000;
+
+const SioRegs = extern struct {
+    cpuid: u32,
+};
+pub const sio = mmio(SioRegs, SIO_BASE);
+
 const GPIO = extern struct {
     set: u32,
     clear: u32,
     xor: u32,
 };
-pub const gpio = mmio(GPIO, GPIO_BASE);
+pub const gpio = mmio(GPIO, SIO_BASE + 0x0014);
+
+const SPIN_LOCK_BASE = SIO_BASE + 0x100;
+const SpinLockRegs = extern struct {
+    locks: [32]u32,
+};
+pub const spin_locks = mmio(SpinLockRegs, SPIN_LOCK_BASE);
+
+const INTER_CORE_FIFO_BASE = SIO_BASE + 0x050;
+const InterCoreFifoRegs = extern struct {
+    st: u32,
+    wr: u32,
+    rd: u32,
+};
+pub const inter_core_fifo = mmio(InterCoreFifoRegs, INTER_CORE_FIFO_BASE);
+
+// ---- Clocks & Reset ----
 
 const XOSC_BASE = 0x40024000;
 const XoscRegs = extern struct {
@@ -88,6 +117,8 @@ const PllSysRegs = extern struct {
 };
 pub const pll_sys = mmio(PllSysRegs, PLL_SYS_BASE);
 pub const pll_sys_clr = mmio(PllSysRegs, PLL_SYS_BASE + 0x3000);
+
+// ---- Peripherals ----
 
 const UART0_BASE = 0x40034000;
 const UartRegs = extern struct {
@@ -143,6 +174,8 @@ const PsmRegs = extern struct {
     wdsel: u32,
 };
 pub const psm = mmio(PsmRegs, PSM_BASE);
+pub const psm_set = mmio(PsmRegs, PSM_BASE + 0x2000);
+pub const psm_clr = mmio(PsmRegs, PSM_BASE + 0x3000);
 
 const IO_BANK0_BASE = 0x40014000;
 const GpioCtrl = extern struct {

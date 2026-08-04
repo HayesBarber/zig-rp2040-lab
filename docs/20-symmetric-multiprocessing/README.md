@@ -1,0 +1,105 @@
+# 20 - Symmetric Multiprocessing
+
+Symmetric multiprocessing, in the context of this lab, is the idea that both cores are running their own instance of the same scheduling algorithm. They still very well can/will pull from the same task queue. We need to spin up the second core, as well as ensure there is a mutual exclusion mechanism for accessing global memory. We have covered both multi-core and spinlocks in previous chapters, but it is now time to fit it into our scheduler/kernel implementation. We also used the pico-sdk to launch a task on core 1, and will need to implement this outselves.
+
+## Spinlock
+
+Since the scheduler itself will be trying to obtain the lock, it won't be able to block the task and pend SV. Compare that to a mutex implementation that might put the task on a waiting queue. We very well may want that mutex implementation for later though.
+
+The goal will be to add a spinlock implementation for the kernel module. It should be multi-core safe, and handle interrupt enabling/disabling for the critical section of obtaining the lock.
+
+---
+
+Simple implementation that creates a SpinLock instance given a lock number, locks by reading the mmio location, and unlocks by writing to it.
+
+## Multi Core
+
+As mentioned in the chapter on multi-core, core 1 goes to sleep on boot up, and needs to be woken up by sending data over the inter-processor FIFOs. We can see how [MicroZig](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L72) and the [Pico SDK](https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/pico_multicore/multicore.c#L153) do this.
+
+### Inter-Processor Communication
+
+Before we even get to defining the sequence, we need to setup the inter-processor comms. We already went over what registers are involved with that in the multi-core chapter, but lets implement it.
+
+---
+
+The implementation mirrors [how MicroZig does it](https://github.com/ZigEmbeddedGroup/microzig/blob/main/port/raspberrypi/rp2xxx/src/hal/multicore.zig#L14). A simple struct with read/write operations to the inter-core fifo registers.
+
+### Atomic Addresses
+
+For future reference:
+
+- Address + 0x0000 -> normal access
+- Address + 0x1000 -> atomic XOR write
+- Address + 0x2000 -> atomic bitmask set write
+- Address + 0x3000 -> atomic bitmask clear write
+
+### Starting Core 1
+
+The sequence to startup core 1 is as follows:
+
+1. Perform a reset on core 1 using atomic addresses
+  - Use `PSM` registers (base `0x40010000`)
+  - Set `PSM.FRCE_OFF.PROC1` (offset 0x4, bit 16)
+  - Poll this bit for a 1 to confirm core 1 reset is in the correct state
+  > Note that the Pico SDK would normally disable the SIO FIFO IRQ at this point, but we are not currently using the IRQ
+  - Clear `PSM.FRCE_OFF.PROC1`
+  - Core 1 will then clear its own FIFO, and send a 0 to core 0 which we can verify core 0 received
+2. Configure a stack for core 1
+  - We can have a 1KB stack as a global var
+  - Push two items onto this stack:
+    - The entrypoint function
+    - The stack base pointer
+  - For the entrypoint, it will probably be the core 1's instance of the scheduler's `start` function, but will have to see how this plays out
+3. Perform handshake with core 1
+  - Prepare the sequence `0, 0, 1, VTOR, stack ptr, entrypoint trampoline`
+    - Note that the trampoline function will be what calls the _actual_ entrypoint, and will perform any necessary setup before doing so
+  - Send the sequence using the fifo
+    - Always draining before sending a 0
+    > note that both MicroZig and the Pico SDK do a `sev` after the drain when sending a 0. I am not sure why, as the subsequent write will `sev` anyway. I will omit it for now.
+  - Every element sent in the sequence should be echoed back from core 1, and the sequence should restart if that doesn't pan out
+  > Similar to resetting core 1, the Pico SDK disables the SIO FIFO IRQ, but we are not using it
+
+---
+
+The implementation takes inspiration from both the Pico SDK and MicroZig. I think the `core1Trampoline` is pretty neat, and is taken from the Pico SDK.
+
+I also still struggle to visualize the memory addresses when setting up stacks.
+
+### Multicore Scheduling
+
+With the API to start core 1 in place, we now want the scheduler algorithms to utilize it. We will create a enum that the `main.zig` file can utilize for a global variable to specify if the scheduler should be multicore or single core.
+
+I am thinking that the scheduler module can just always have two scheduler instances, and any code that invokes the scheduler should index based on core id (`CPUID` register is offset 0x0 from SIO base).
+
+Each scheduler algorithm should then accept a multicore flag into it's `setup` function, so that it can do any necessary setup. For instance, superloop will simply divide the tasks down the middle for each core to execute.
+
+Round robin will need a spinlock to protect the global task buffer. Additionally, how will it handle the fact that the first task only pushes the hardware stack frame? I think we will assign core 0 task 0, and core 1 task 1. So if multicore, push hardware stack frames for task 0 _and_ 1, and core 1's scheduler will initialize it's current task idx to 1. Also probably need to ensure when running the scheduler that it doesn't choose a task the other core is already running.
+
+If multicore is selected, the scheduler module will invoke the API to start core 1, passing the reference to core 1's `start` function.
+
+## Post Implementation
+
+A summary of the changes are as follows:
+
+- Adds some new helper functions for disabling/restoring interrupts
+  - Returns/accepts primask
+  - This way we restore the exact state we left
+  - Used with spinlock, and should be generally safer for nested critical sections, ISRs, etc
+- Adds `multicore.zig`
+  - Inter-Processor FIFO implementation
+  - Functions to reset and launch core 1
+- Adds `spin_lock.zig`
+  - Uses the mmio spin locks
+  - Disables/restores interrupts
+- Refactor scheduler module for SMP
+  - Keep two instances of the scheduler, 1 for each core
+  - Current scheduler is retrieved by coreID
+  - Starting the scheduler will startup core 1, and it's scheduler's `start()` function has the entrypoint
+  - Algorithms are multicore:
+    - Super loop divides the tasks in half up front, and each core runs it's share
+    - Round robin:
+      - Has to push hardware frames accordingly for multicore/single core
+      - Uses a spinlock for shared task buffer
+- Application code can specify multicore or single core
+- UART kernal module was refactored to use a spinlock
+
