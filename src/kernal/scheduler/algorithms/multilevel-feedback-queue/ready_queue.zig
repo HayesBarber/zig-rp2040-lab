@@ -3,8 +3,8 @@ const TCB = task.TCB;
 
 const ReadyQueue = @This();
 
-head: ?*TCB,
-tail: ?*TCB,
+head: ?*TCB = null,
+tail: ?*TCB = null,
 len: usize = 0,
 
 pub fn enqueue(self: *ReadyQueue, tcb: *TCB) void {
@@ -27,4 +27,14 @@ pub fn dequeue(self: *ReadyQueue) ?*TCB {
     res.next = null;
     self.len -= 1;
     return res;
+}
+
+const std = @import("std");
+const expect = std.testing.expect;
+
+test "Create ReadyQueue" {
+    const queue: ReadyQueue = .{};
+    try expect(queue.len == 0);
+    try expect(queue.head == null);
+    try expect(queue.tail == null);
 }
