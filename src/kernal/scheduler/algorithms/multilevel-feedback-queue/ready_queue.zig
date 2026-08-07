@@ -28,6 +28,7 @@ pub fn ReadyQueue(comptime T: type) type {
             self.head = res.?.next;
             res.?.next = null;
             self.len -= 1;
+            if (self.head == null) self.tail = null;
             return res;
         }
     };
@@ -49,7 +50,7 @@ test "Create ReadyQueue" {
     try expect(q.tail == null);
 }
 
-test "Enqueue" {
+test "enqueue appends nodes and preserves FIFO links" {
     var q: ReadyQueue(TestNode) = .{};
     var head: TestNode = .{};
     q.enqueue(&head);
@@ -62,15 +63,59 @@ test "Enqueue" {
     try expect(q.len == 2);
     try expect(q.head == &head);
     try expect(q.tail == &tail);
+    try expect(head.next == &tail);
+    try expect(tail.next == null);
 }
 
-test "Dequeue" {
+test "dequeue returns null from an empty queue" {
     var q: ReadyQueue(TestNode) = .{};
-    var head: TestNode = .{};
-    q.enqueue(&head);
-    try expect(q.len == 1);
 
-    const popped = q.dequeue();
+    try expect(q.dequeue() == null);
     try expect(q.len == 0);
-    try expect(&head == popped);
+    try expect(q.head == null);
+    try expect(q.tail == null);
+}
+
+test "dequeue returns nodes in FIFO order and clears their links" {
+    var q: ReadyQueue(TestNode) = .{};
+    var first: TestNode = .{};
+    var second: TestNode = .{};
+    var third: TestNode = .{};
+    q.enqueue(&first);
+    q.enqueue(&second);
+    q.enqueue(&third);
+
+    try expect(q.dequeue() == &first);
+    try expect(first.next == null);
+    try expect(q.len == 2);
+    try expect(q.head == &second);
+    try expect(q.tail == &third);
+
+    try expect(q.dequeue() == &second);
+    try expect(second.next == null);
+    try expect(q.len == 1);
+    try expect(q.head == &third);
+    try expect(q.tail == &third);
+
+    try expect(q.dequeue() == &third);
+    try expect(third.next == null);
+    try expect(q.len == 0);
+    try expect(q.head == null);
+    try expect(q.tail == null);
+}
+
+test "queue accepts enqueues after it is drained" {
+    var q: ReadyQueue(TestNode) = .{};
+    var first: TestNode = .{};
+    var second: TestNode = .{};
+
+    q.enqueue(&first);
+    try expect(q.dequeue() == &first);
+
+    q.enqueue(&second);
+    try expect(q.len == 1);
+    try expect(q.head == &second);
+    try expect(q.tail == &second);
+    try expect(q.dequeue() == &second);
+    try expect(q.len == 0);
 }
