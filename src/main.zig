@@ -65,7 +65,7 @@ fn write(text: []const u8) void {
 }
 
 fn writePrompt() void {
-    write("lab> ");
+    write("$ ");
 }
 
 fn printBanner() void {
