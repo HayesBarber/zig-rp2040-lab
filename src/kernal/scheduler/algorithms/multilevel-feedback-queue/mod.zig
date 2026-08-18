@@ -109,11 +109,11 @@ pub fn selectNext(self: *MultilevelFeedbackQueue, old_sp: usize) usize {
     const current = self.current_task orelse @trap();
     current.sp = old_sp;
     if (current.state == .Running) {
+        if (current.remaining_ticks == 0 and current.level < LEVEL_COUNT - 1) {
+            current.level += 1;
+        }
         current.state = .Ready;
         if (!ready_tasks.enqueue(current)) @trap();
-        if (current.remaining_ticks == 0) {
-            _ = ready_tasks.demote(current);
-        }
     }
 
     const next = ready_tasks.dequeue() orelse current;
