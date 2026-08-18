@@ -113,7 +113,7 @@ pub fn selectNext(self: *MultilevelFeedbackQueue, old_sp: usize) usize {
             current.level += 1;
         }
         current.state = .Ready;
-        if (!ready_tasks.enqueue(current)) @trap();
+        ready_tasks.enqueue(current);
     }
 
     const next = ready_tasks.dequeue() orelse current;
@@ -145,5 +145,5 @@ pub fn makeReady(_: *MultilevelFeedbackQueue, task: *anyopaque) void {
 
     if (ready_task.level > 0) ready_task.level -= 1;
     ready_task.state = .Ready;
-    if (!ready_tasks.enqueue(ready_task)) @trap();
+    ready_tasks.enqueue(ready_task);
 }

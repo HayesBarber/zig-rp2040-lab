@@ -32,28 +32,6 @@ pub fn ReadyQueue(comptime T: type) type {
             return res;
         }
 
-        /// Remove a specific node while preserving the order of all others.
-        pub fn remove(self: *Self, tcb: *T) bool {
-            var previous: ?*T = null;
-            var current = self.head;
-            while (current) |node| : (current = node.next) {
-                if (node != tcb) {
-                    previous = node;
-                    continue;
-                }
-
-                if (previous) |prev| {
-                    prev.next = node.next;
-                } else {
-                    self.head = node.next;
-                }
-                if (self.tail == node) self.tail = previous;
-                node.next = null;
-                self.len -= 1;
-                return true;
-            }
-            return false;
-        }
     };
 }
 
@@ -141,31 +119,4 @@ test "queue accepts enqueues after it is drained" {
     try expect(q.tail == &second);
     try expect(q.dequeue() == &second);
     try expect(q.len == 0);
-}
-
-test "remove unlinks a specific node and preserves the remaining FIFO order" {
-    var q: ReadyQueue(TestNode) = .{};
-    var first: TestNode = .{};
-    var middle: TestNode = .{};
-    var last: TestNode = .{};
-    var absent: TestNode = .{};
-    q.enqueue(&first);
-    q.enqueue(&middle);
-    q.enqueue(&last);
-
-    try expect(q.remove(&middle));
-    try expect(middle.next == null);
-    try expect(q.len == 2);
-    try expect(q.head == &first);
-    try expect(q.tail == &last);
-    try expect(first.next == &last);
-    try expect(!q.remove(&absent));
-
-    try expect(q.remove(&first));
-    try expect(q.head == &last);
-    try expect(q.tail == &last);
-    try expect(q.remove(&last));
-    try expect(q.len == 0);
-    try expect(q.head == null);
-    try expect(q.tail == null);
 }

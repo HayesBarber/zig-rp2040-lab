@@ -26,11 +26,8 @@ pub fn MultilevelQueue(comptime T: type, comptime level_count: usize) type {
         }
 
         /// Requeue a task at its previously assigned priority level.
-        pub fn enqueue(self: *Self, task: *T) bool {
-            if (task.level >= level_count) return false;
-
+        pub fn enqueue(self: *Self, task: *T) void {
             self.queues[task.level].enqueue(task);
-            return true;
         }
 
         /// Return the next task from the highest non-empty priority level.
@@ -78,32 +75,12 @@ test "dequeue uses strict priority and FIFO within a level" {
     var high: TestNode = .{ .level = 0 };
     var second_low: TestNode = .{ .level = 2 };
 
-    try expect(queue.enqueue(&first_low));
-    try expect(queue.enqueue(&high));
-    try expect(queue.enqueue(&second_low));
+    queue.enqueue(&first_low);
+    queue.enqueue(&high);
+    queue.enqueue(&second_low);
 
     try expect(queue.dequeue() == &high);
     try expect(queue.dequeue() == &first_low);
     try expect(queue.dequeue() == &second_low);
     try expect(queue.dequeue() == null);
-}
-
-test "invalid enqueue operations leave queues unchanged" {
-    var queue: MultilevelQueue(TestNode, 3) = .{};
-    var highest: TestNode = .{ .level = 0 };
-    var lowest: TestNode = .{ .level = 2 };
-    var invalid: TestNode = .{ .level = 3 };
-
-    try expect(queue.enqueue(&highest));
-    try expect(queue.enqueue(&lowest));
-    try expect(!queue.enqueue(&invalid));
-
-    try expect(queue.queues[0].len == 1);
-    try expect(queue.queues[0].head == &highest);
-    try expect(queue.queues[0].tail == &highest);
-    try expect(queue.queues[2].len == 1);
-    try expect(queue.queues[2].head == &lowest);
-    try expect(queue.queues[2].tail == &lowest);
-    try expect(highest.next == null);
-    try expect(lowest.next == null);
 }

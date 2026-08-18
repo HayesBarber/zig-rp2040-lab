@@ -21,6 +21,21 @@ For this project, I am thinking of implementing the following spec:
 - Tasks that block get promoted (move closer to queue 0)
 - Tasks that use entire time slice get demoted (move closer to queue N-1)
 
+## Post Implementation
+
+- Adds two new datastructures
+  - Ready Queue
+    - A singly linked list with FIFO behavio
+  - Multilevel Queue
+    - Creates N ready queues
+    - Provides APIs to add, enqueue, and dequeue based on queue priority
+- Implemented the multilevel feedback queue scheduler
+  - Adds a `level` field for the TCB
+  - When tasks are made ready, promote (decrement level)
+  - When tasks use entire time slice, demote (increment level)
+  - Implement remainder of scheduler interface similar to round robin
+- The programmer can specify how many queues to use
+
 ## References
 
 - https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/6_CPU_Scheduling.html
