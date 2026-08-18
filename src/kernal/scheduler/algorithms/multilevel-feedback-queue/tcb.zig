@@ -16,4 +16,5 @@ pub const TCB = struct {
     sp: usize = 0,
     stack: [STACK_SIZE]u8 align(8) = undefined,
     next: ?*TCB = null,
+    level: usize = 0,
 };
