@@ -44,27 +44,6 @@ pub fn MultilevelQueue(comptime T: type, comptime level_count: usize) type {
             return null;
         }
 
-        /// Move a queued task one level toward the highest priority.
-        pub fn promote(self: *Self, task: *T) bool {
-            if (task.level >= level_count or task.level == 0) return false;
-            return self.move(task, task.level - 1);
-        }
-
-        /// Move a queued task one level toward the lowest priority.
-        pub fn demote(self: *Self, task: *T) bool {
-            if (task.level >= level_count or task.level == level_count - 1) return false;
-            return self.move(task, task.level + 1);
-        }
-
-        fn move(self: *Self, task: *T, destination_level: usize) bool {
-            const source_level = task.level;
-            if (!self.queues[source_level].remove(task)) return false;
-
-            task.level = destination_level;
-            self.queues[destination_level].enqueue(task);
-            return true;
-        }
-
         fn contains(self: *const Self, task: *const T) bool {
             for (self.queues) |queue| {
                 var current = queue.head;
@@ -121,60 +100,17 @@ test "dequeue uses strict priority and FIFO within a level" {
     try expect(queue.dequeue() == null);
 }
 
-test "promote relocates a queued task and preserves destination FIFO order" {
-    var queue: MultilevelQueue(TestNode, 3) = .{};
-    var first_high: TestNode = .{ .level = 0 };
-    var promoted: TestNode = .{ .level = 1 };
-    var trailing_middle: TestNode = .{ .level = 1 };
-
-    try expect(queue.enqueue(&first_high));
-    try expect(queue.enqueue(&promoted));
-    try expect(queue.enqueue(&trailing_middle));
-    try expect(queue.promote(&promoted));
-    try expect(promoted.level == 0);
-    try expect(queue.queues[1].head == &trailing_middle);
-
-    try expect(queue.dequeue() == &first_high);
-    try expect(queue.dequeue() == &promoted);
-    try expect(queue.dequeue() == &trailing_middle);
-}
-
-test "demote relocates a queued task and preserves source FIFO order" {
-    var queue: MultilevelQueue(TestNode, 3) = .{};
-    var first_middle: TestNode = .{ .level = 1 };
-    var demoted: TestNode = .{ .level = 1 };
-    var first_low: TestNode = .{ .level = 2 };
-
-    try expect(queue.enqueue(&first_middle));
-    try expect(queue.enqueue(&demoted));
-    try expect(queue.enqueue(&first_low));
-    try expect(queue.demote(&demoted));
-    try expect(demoted.level == 2);
-    try expect(queue.queues[1].head == &first_middle);
-
-    try expect(queue.dequeue() == &first_middle);
-    try expect(queue.dequeue() == &first_low);
-    try expect(queue.dequeue() == &demoted);
-}
-
-test "invalid, duplicate, absent, and boundary operations leave queues unchanged" {
+test "invalid and duplicate enqueue operations leave queues unchanged" {
     var queue: MultilevelQueue(TestNode, 3) = .{};
     var highest: TestNode = .{ .level = 0 };
     var lowest: TestNode = .{ .level = 2 };
-    var absent: TestNode = .{ .level = 1 };
     var invalid: TestNode = .{ .level = 3 };
 
     try expect(queue.enqueue(&highest));
     try expect(queue.enqueue(&lowest));
     try expect(!queue.enqueue(&highest));
     try expect(!queue.add(&lowest));
-    try expect(!queue.promote(&highest));
-    try expect(!queue.demote(&lowest));
-    try expect(!queue.promote(&absent));
-    try expect(!queue.demote(&absent));
     try expect(!queue.enqueue(&invalid));
-    try expect(!queue.promote(&invalid));
-    try expect(!queue.demote(&invalid));
 
     try expect(queue.queues[0].len == 1);
     try expect(queue.queues[0].head == &highest);
