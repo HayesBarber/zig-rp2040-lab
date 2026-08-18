@@ -73,7 +73,7 @@ pub fn initShared(multicore: bool) void {
             task.entry,
             task.exit,
         );
-        if (!ready_tasks.add(task)) @trap();
+        ready_tasks.add(task);
     }
 
     // Reserve each core's first task before Core 1 is launched. This keeps

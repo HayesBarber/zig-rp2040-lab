@@ -20,17 +20,14 @@ pub fn MultilevelQueue(comptime T: type, comptime level_count: usize) type {
         queues: [level_count]Queue = [_]Queue{.{}} ** level_count,
 
         /// Add a new task at the middle priority level.
-        pub fn add(self: *Self, task: *T) bool {
-            if (self.contains(task)) return false;
-
+        pub fn add(self: *Self, task: *T) void {
             task.level = level_count / 2;
             self.queues[task.level].enqueue(task);
-            return true;
         }
 
         /// Requeue a task at its previously assigned priority level.
         pub fn enqueue(self: *Self, task: *T) bool {
-            if (task.level >= level_count or self.contains(task)) return false;
+            if (task.level >= level_count) return false;
 
             self.queues[task.level].enqueue(task);
             return true;
@@ -44,15 +41,6 @@ pub fn MultilevelQueue(comptime T: type, comptime level_count: usize) type {
             return null;
         }
 
-        fn contains(self: *const Self, task: *const T) bool {
-            for (self.queues) |queue| {
-                var current = queue.head;
-                while (current) |node| : (current = node.next) {
-                    if (node == task) return true;
-                }
-            }
-            return false;
-        }
     };
 }
 
@@ -69,18 +57,18 @@ const TestNode = struct {
 test "add initializes tasks at the middle priority level" {
     var one_level: MultilevelQueue(TestNode, 1) = .{};
     var only: TestNode = .{ .level = 99 };
-    try expect(one_level.add(&only));
+    one_level.add(&only);
     try expect(only.level == 0);
     try expect(one_level.queues[0].head == &only);
 
     var even_levels: MultilevelQueue(TestNode, 4) = .{};
     var even: TestNode = .{};
-    try expect(even_levels.add(&even));
+    even_levels.add(&even);
     try expect(even.level == 2);
 
     var odd_levels: MultilevelQueue(TestNode, 5) = .{};
     var odd: TestNode = .{};
-    try expect(odd_levels.add(&odd));
+    odd_levels.add(&odd);
     try expect(odd.level == 2);
 }
 
@@ -100,7 +88,7 @@ test "dequeue uses strict priority and FIFO within a level" {
     try expect(queue.dequeue() == null);
 }
 
-test "invalid and duplicate enqueue operations leave queues unchanged" {
+test "invalid enqueue operations leave queues unchanged" {
     var queue: MultilevelQueue(TestNode, 3) = .{};
     var highest: TestNode = .{ .level = 0 };
     var lowest: TestNode = .{ .level = 2 };
@@ -108,8 +96,6 @@ test "invalid and duplicate enqueue operations leave queues unchanged" {
 
     try expect(queue.enqueue(&highest));
     try expect(queue.enqueue(&lowest));
-    try expect(!queue.enqueue(&highest));
-    try expect(!queue.add(&lowest));
     try expect(!queue.enqueue(&invalid));
 
     try expect(queue.queues[0].len == 1);
