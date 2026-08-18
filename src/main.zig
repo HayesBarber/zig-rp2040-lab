@@ -73,7 +73,6 @@ fn printBanner() void {
         "\r\n" ++
             "zig-rp2040-lab\r\n" ++
             "Bare-metal RP2040 scheduler, written in Zig.\r\n" ++
-            "2 cores | MLFQ (5 levels) | 3 tasks\r\n" ++
             "Type 'help' to explore the lab.\r\n\r\n",
     );
     writePrompt();
@@ -83,20 +82,11 @@ fn printHelp() void {
     write(
         "Commands:\r\n" ++
             "  help           Show this command list\r\n" ++
-            "  about          Tell the story of the lab\r\n" ++
             "  tasks          Describe the running workloads\r\n" ++
             "  uptime         Show milliseconds since boot\r\n" ++
             "  led on         Hold the onboard LED on\r\n" ++
             "  led off        Hold the onboard LED off\r\n" ++
             "  led heartbeat  Restore the double-blink heartbeat\r\n",
-    );
-}
-
-fn printAbout() void {
-    write(
-        "This firmware boots without an SDK, initializes the RP2040,\r\n" ++
-            "launches both cores, and runs a preemptive multilevel feedback\r\n" ++
-            "queue scheduler built from scratch in Zig.\r\n",
     );
 }
 
@@ -114,8 +104,6 @@ fn runCommand(input: []const u8) void {
 
     if (std.ascii.eqlIgnoreCase(command, "help")) {
         printHelp();
-    } else if (std.ascii.eqlIgnoreCase(command, "about")) {
-        printAbout();
     } else if (std.ascii.eqlIgnoreCase(command, "tasks")) {
         printTasks();
     } else if (std.ascii.eqlIgnoreCase(command, "uptime")) {
