@@ -33,8 +33,9 @@ fn computeTask() noreturn {
     }
 }
 
-pub const SCHEDULER_ALGORITHM = kernal.SchedulingAlgorithms.round_robin;
+pub const SCHEDULER_ALGORITHM = kernal.SchedulingAlgorithms.multilevel_feedback_queue;
 pub const SCHEDULER_MODE = kernal.SchedulerMode.multi_core;
+pub const MLFQ_LEVEL_COUNT = 5;
 
 pub fn registerTasks() kernal.task.TaskGroup {
     return .{

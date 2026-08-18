@@ -30,6 +30,7 @@ This is for learning purposes
 - [ ] Scheduler algorithm(s)
   - [x] Super loop
   - [x] Round robin
+  - [x] Multilevel Feedback Queue
   - [ ] ...
 - [x] Context switch
 - [x] Task blocking

@@ -18,6 +18,9 @@ pub fn build(b: *std.Build) void {
     });
     kernal_mod.addImport("core", core_mod);
 
+    const test_step = b.step("test", "Run unit tests");
+    addDiscoveredTests(b, test_step, core_mod, kernal_mod);
+
     const boot2_bin = build_boot2(b, target, optimize);
     const boot2_mod = b.createModule(.{ .root_source_file = boot2_bin });
 
@@ -73,6 +76,63 @@ pub fn build(b: *std.Build) void {
     const load_cmd = b.addSystemCommand(&.{ "picotool", "load", "-uxf" });
     load_cmd.addFileArg(uf2_file);
     load_step.dependOn(&load_cmd.step);
+}
+
+fn addDiscoveredTests(
+    b: *std.Build,
+    test_step: *std.Build.Step,
+    core_mod: *std.Build.Module,
+    kernal_mod: *std.Build.Module,
+) void {
+    const io = b.graph.io;
+    var source_dir = b.build_root.handle.openDir(io, "src", .{ .iterate = true }) catch @panic("unable to open source directory");
+    defer source_dir.close(io);
+
+    var walker = source_dir.walk(b.allocator) catch @panic("out of memory");
+    var test_index: usize = 0;
+    while (walker.next(io) catch @panic("unable to walk source directory")) |entry| {
+        if (entry.kind != .file or !std.mem.endsWith(u8, entry.path, ".zig")) continue;
+
+        var source_file = entry.dir.openFile(io, entry.basename, .{}) catch @panic("unable to open source file");
+        const stat = source_file.stat(io) catch @panic("unable to stat source file");
+        const source = b.allocator.alloc(u8, @intCast(stat.size)) catch @panic("out of memory");
+        const bytes_read = source_file.readPositionalAll(io, source, 0) catch @panic("unable to read source file");
+        source_file.close(io);
+
+        if (!containsTestDeclaration(source[0..bytes_read])) continue;
+
+        const test_root = b.createModule(.{
+            .root_source_file = b.path(b.pathJoin(&.{ "src", entry.path })),
+            .target = b.graph.host,
+            .optimize = .Debug,
+        });
+        test_root.addImport("core", core_mod);
+        test_root.addImport("kernal", kernal_mod);
+
+        const tests = b.addTest(.{
+            .name = b.fmt("test-{d}", .{test_index}),
+            .root_module = test_root,
+        });
+        test_index += 1;
+        const run_tests = b.addRunArtifact(tests);
+        test_step.dependOn(&run_tests.step);
+    }
+}
+
+fn containsTestDeclaration(source: []const u8) bool {
+    var start: usize = 0;
+    while (std.mem.indexOfPos(u8, source, start, "test")) |index| {
+        const before_is_identifier = index != 0 and isIdentifierCharacter(source[index - 1]);
+        const after_index = index + "test".len;
+        const after_is_whitespace = after_index < source.len and std.ascii.isWhitespace(source[after_index]);
+        if (!before_is_identifier and after_is_whitespace) return true;
+        start = after_index;
+    }
+    return false;
+}
+
+fn isIdentifierCharacter(char: u8) bool {
+    return std.ascii.isAlphanumeric(char) or char == '_';
 }
 
 fn build_boot2(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) std.Build.LazyPath {
