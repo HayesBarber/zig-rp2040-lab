@@ -191,7 +191,7 @@ fn uartTask() noreturn {
             }
 
             if (byte == std.ascii.control_code.bs or byte == std.ascii.control_code.del) {
-                if (!line_overflowed and line_length > 0) {
+                if (line_length > 0) {
                     line_length -= 1;
                     write(&ERASE_PREVIOUS_CHARACTER);
                 }
@@ -204,11 +204,9 @@ fn uartTask() noreturn {
                 continue;
             }
 
-            if (!line_overflowed) {
-                line_buffer[line_length] = byte;
-                line_length += 1;
-                core.uart.putChar(byte);
-            }
+            line_buffer[line_length] = byte;
+            line_length += 1;
+            core.uart.putChar(byte);
         }
     }
 }
