@@ -1,44 +1,29 @@
-# zig-rp2040-lab
+# Zig RP2040 Lab
 
-The goal of this repo is to build a preemptive scheduler in Zig for a Raspberry Pi Pico
+## Running the lab
 
-Zig version: 0.16.0
+Prerequisites:
+- Zig version: 0.16.0
+- [Picotool](https://github.com/raspberrypi/picotool) installed and on `$PATH`
 
-This is for learning purposes
+```zsh
+# Build the uf2 and load onto board (assuming board is connected and in bootsel mode)
+zig build load
+```
 
-### Datasheets
+## Description
 
-- [RP2040](https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008371-DS-1-rp2040-datasheet.pdf)
-- [Pico W](https://pip-assets.raspberrypi.com/categories/686-raspberry-pi-pico-w/documents/RP-008312-DS-1-pico-w-datasheet.pdf)
+## Project Structure
 
-### Roadmap
+```txt
+./
+├── docs/ # Cumulative journal
+├── src/
+│   ├── boot/ # Second stage bootloader
+│   ├── core/ # HAL
+│   ├── kernal/ # scheduler and kernal APIs
+│   └── main.zig # application code
+└── build.zig # builds the uf2
+```
 
-- [x] Boot Sequence
-- [x] SDK interop
-- [x] Picotool
-- [x] Timer interrupts
-- [x] Exception entry and register stacking
-- [x] PendSV interrupt
-- [x] Multicore
-- [x] Spinlocks
-- [x] Linker scripts
-- [x] crt0
-- [x] zrt0
-- [x] System clocks
-- [x] Serial communication
-- [x] Task registration API
-- [ ] Scheduler algorithm(s)
-  - [x] Super loop
-  - [x] Round robin
-  - [x] Multilevel Feedback Queue
-  - [ ] ...
-- [x] Context switch
-- [x] Task blocking
-- [ ] Telemetry
-- [ ] Synthetic workload / profiling
-- [x] Heap allocator
-- [x] Symmetric Multiprocessing
-- [ ] Mutual exclusion
-  - [x] Spin Lock
-  - [ ] Mutex
 
