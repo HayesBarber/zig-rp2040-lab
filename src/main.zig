@@ -17,6 +17,7 @@ const Command = union(enum) {
     tasks: void,
     uptime: void,
     counter: void,
+    clear: void,
     led: LedMode,
 };
 
@@ -27,6 +28,15 @@ const ERASE_PREVIOUS_CHARACTER = [_]u8{
     std.ascii.control_code.bs,
     ' ',
     std.ascii.control_code.bs,
+};
+const CLEAR_CONSOLE = [_]u8{
+    std.ascii.control_code.esc,
+    '[',
+    '2',
+    'J',
+    std.ascii.control_code.esc,
+    '[',
+    'H',
 };
 
 var led_mode: u32 align(4) = @intFromEnum(LedMode.heartbeat);
@@ -103,6 +113,7 @@ fn printHelp() void {
             "  tasks          Describe the running workloads\r\n" ++
             "  uptime         Show milliseconds since boot\r\n" ++
             "  counter        Show the compute counter\r\n" ++
+            "  clear          Clear the console\r\n" ++
             "  led on         Hold the onboard LED on\r\n" ++
             "  led off        Hold the onboard LED off\r\n" ++
             "  led heartbeat  Restore the double-blink heartbeat\r\n",
@@ -130,6 +141,7 @@ fn parseCommand(input: []u8) ?Command {
         .tasks => .{ .tasks = {} },
         .uptime => .{ .uptime = {} },
         .counter => .{ .counter = {} },
+        .clear => .{ .clear = {} },
         .led => .{ .led = std.meta.stringToEnum(LedMode, argument orelse return null) orelse return null },
     };
 }
@@ -146,6 +158,7 @@ fn runCommand(input: []u8) void {
         .tasks => printTasks(),
         .uptime => core.uart.w_interface.print("Uptime: {d} ms\r\n", .{core.timer.milliseconds()}) catch unreachable,
         .counter => core.uart.w_interface.print("Compute counter: {d}\r\n", .{currentComputeCounter()}) catch unreachable,
+        .clear => write(&CLEAR_CONSOLE),
         .led => |mode| {
             setLedMode(mode);
             core.uart.w_interface.print("LED mode: {s}\r\n", .{@tagName(mode)}) catch unreachable;
