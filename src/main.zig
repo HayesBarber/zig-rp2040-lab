@@ -158,18 +158,12 @@ fn uartTask() noreturn {
     var line_buffer: [64]u8 = undefined;
     var line_length: usize = 0;
     var line_overflowed = false;
-    var previous_was_cr = false;
 
     printBanner();
 
     while (true) {
         const count = kernal.uart.read(&receive_buffer);
         for (receive_buffer[0..count]) |byte| {
-            if (byte == '\n' and previous_was_cr) {
-                previous_was_cr = false;
-                continue;
-            }
-
             if (byte == '\r' or byte == '\n') {
                 write("\r\n");
                 if (line_overflowed) {
@@ -179,12 +173,9 @@ fn uartTask() noreturn {
                 }
                 line_length = 0;
                 line_overflowed = false;
-                previous_was_cr = byte == '\r';
                 writePrompt();
                 continue;
             }
-
-            previous_was_cr = false;
 
             if (byte == std.ascii.control_code.bs or byte == std.ascii.control_code.del) {
                 if (!line_overflowed and line_length > 0) {
