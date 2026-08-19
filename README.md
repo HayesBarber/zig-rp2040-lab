@@ -17,13 +17,13 @@ zig build load
 
 ```txt
 ./
-├── docs/ # Cumulative journal
+├── docs/          ->  Cumulative journal
 ├── src/
-│   ├── boot/ # Second stage bootloader
-│   ├── core/ # HAL
-│   ├── kernal/ # scheduler and kernal APIs
-│   └── main.zig # application code
-└── build.zig # builds the uf2
+│   ├── boot/      ->  Second stage bootloader
+│   ├── core/      ->  HAL
+│   ├── kernal/    ->  Scheduler and kernel APIs
+│   └── main.zig   ->  Application code
+└── build.zig      ->  Builds the uf2
 ```
 
 
