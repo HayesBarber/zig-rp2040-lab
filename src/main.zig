@@ -16,13 +16,13 @@ const Command = union(enum) {
     help: void,
     tasks: void,
     uptime: void,
+    counter: void,
     led: LedMode,
 };
 
 const HEARTBEAT_PULSE_MS = 100;
 const HEARTBEAT_PAUSE_MS = 700;
 const LED_MODE_POLL_MS = 25;
-const COMPUTE_WORK_ITERATIONS = 5_000_000;
 const ERASE_PREVIOUS_CHARACTER = [_]u8{
     std.ascii.control_code.bs,
     ' ',
@@ -30,6 +30,7 @@ const ERASE_PREVIOUS_CHARACTER = [_]u8{
 };
 
 var led_mode: u32 align(4) = @intFromEnum(LedMode.heartbeat);
+var compute_counter: u32 align(4) = 0;
 
 fn currentLedMode() LedMode {
     const mode: *const volatile u32 = &led_mode;
@@ -39,6 +40,11 @@ fn currentLedMode() LedMode {
 fn setLedMode(mode: LedMode) void {
     const shared_mode: *volatile u32 = &led_mode;
     shared_mode.* = @intFromEnum(mode);
+}
+
+fn currentComputeCounter() u32 {
+    const counter: *const volatile u32 = &compute_counter;
+    return counter.*;
 }
 
 fn waitWhileMode(expected_mode: LedMode, duration_ms: u64) bool {
@@ -96,6 +102,7 @@ fn printHelp() void {
             "  help           Show this command list\r\n" ++
             "  tasks          Describe the running workloads\r\n" ++
             "  uptime         Show milliseconds since boot\r\n" ++
+            "  counter        Show the compute counter\r\n" ++
             "  led on         Hold the onboard LED on\r\n" ++
             "  led off        Hold the onboard LED off\r\n" ++
             "  led heartbeat  Restore the double-blink heartbeat\r\n",
@@ -106,7 +113,7 @@ fn printTasks() void {
     write(
         "led      Visual heartbeat and interactive LED control\r\n" ++
             "uart     Blocking command console (I/O-bound)\r\n" ++
-            "compute  Synthetic busy work (CPU-bound)\r\n",
+            "compute  Counter increment workload (CPU-bound)\r\n",
     );
 }
 
@@ -122,6 +129,7 @@ fn parseCommand(input: []u8) ?Command {
         .help => .{ .help = {} },
         .tasks => .{ .tasks = {} },
         .uptime => .{ .uptime = {} },
+        .counter => .{ .counter = {} },
         .led => .{ .led = std.meta.stringToEnum(LedMode, argument orelse return null) orelse return null },
     };
 }
@@ -137,6 +145,7 @@ fn runCommand(input: []u8) void {
         .help => printHelp(),
         .tasks => printTasks(),
         .uptime => core.uart.w_interface.print("Uptime: {d} ms\r\n", .{core.timer.milliseconds()}) catch unreachable,
+        .counter => core.uart.w_interface.print("Compute counter: {d}\r\n", .{currentComputeCounter()}) catch unreachable,
         .led => |mode| {
             setLedMode(mode);
             core.uart.w_interface.print("LED mode: {s}\r\n", .{@tagName(mode)}) catch unreachable;
@@ -201,11 +210,9 @@ fn uartTask() noreturn {
 }
 
 fn computeTask() noreturn {
+    const counter: *volatile u32 = &compute_counter;
     while (true) {
-        var iteration: u32 = 0;
-        while (iteration < COMPUTE_WORK_ITERATIONS) : (iteration += 1) {
-            asm volatile ("nop");
-        }
+        counter.* +%= 1;
     }
 }
 
