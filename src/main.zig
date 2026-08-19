@@ -12,10 +12,22 @@ const LedMode = enum(u32) {
     off,
 };
 
+const Command = union(enum) {
+    help: void,
+    tasks: void,
+    uptime: void,
+    led: LedMode,
+};
+
 const HEARTBEAT_PULSE_MS = 100;
 const HEARTBEAT_PAUSE_MS = 700;
 const LED_MODE_POLL_MS = 25;
 const COMPUTE_WORK_ITERATIONS = 5_000_000;
+const ERASE_PREVIOUS_CHARACTER = [_]u8{
+    std.ascii.control_code.bs,
+    ' ',
+    std.ascii.control_code.bs,
+};
 
 var led_mode: u32 align(4) = @intFromEnum(LedMode.heartbeat);
 
@@ -98,27 +110,37 @@ fn printTasks() void {
     );
 }
 
-fn runCommand(input: []const u8) void {
-    const command = std.mem.trim(u8, input, " \t");
-    if (command.len == 0) return;
+fn parseCommand(input: []u8) ?Command {
+    const normalized_input = std.ascii.lowerString(input, input);
+    var tokens = std.mem.tokenizeAny(u8, normalized_input, " \t");
+    const command_name = tokens.next() orelse return null;
+    const command = std.meta.stringToEnum(std.meta.Tag(Command), command_name) orelse return null;
+    const argument = tokens.next();
+    if (tokens.next() != null) return null;
 
-    if (std.ascii.eqlIgnoreCase(command, "help")) {
-        printHelp();
-    } else if (std.ascii.eqlIgnoreCase(command, "tasks")) {
-        printTasks();
-    } else if (std.ascii.eqlIgnoreCase(command, "uptime")) {
-        core.uart.w_interface.print("Uptime: {d} ms\r\n", .{core.timer.milliseconds()}) catch unreachable;
-    } else if (std.ascii.eqlIgnoreCase(command, "led on")) {
-        setLedMode(.on);
-        write("LED mode: on\r\n");
-    } else if (std.ascii.eqlIgnoreCase(command, "led off")) {
-        setLedMode(.off);
-        write("LED mode: off\r\n");
-    } else if (std.ascii.eqlIgnoreCase(command, "led heartbeat")) {
-        setLedMode(.heartbeat);
-        write("LED mode: heartbeat\r\n");
-    } else {
+    return switch (command) {
+        .help => .{ .help = {} },
+        .tasks => .{ .tasks = {} },
+        .uptime => .{ .uptime = {} },
+        .led => .{ .led = std.meta.stringToEnum(LedMode, argument orelse return null) orelse return null },
+    };
+}
+
+fn runCommand(input: []u8) void {
+    if (std.mem.trim(u8, input, " \t").len == 0) return;
+    const command = parseCommand(input) orelse {
         write("Unknown command. Type 'help'.\r\n");
+        return;
+    };
+
+    switch (command) {
+        .help => printHelp(),
+        .tasks => printTasks(),
+        .uptime => core.uart.w_interface.print("Uptime: {d} ms\r\n", .{core.timer.milliseconds()}) catch unreachable,
+        .led => |mode| {
+            setLedMode(mode);
+            core.uart.w_interface.print("LED mode: {s}\r\n", .{@tagName(mode)}) catch unreachable;
+        },
     }
 }
 
@@ -155,15 +177,15 @@ fn uartTask() noreturn {
 
             previous_was_cr = false;
 
-            if (byte == 0x08 or byte == 0x7f) {
+            if (byte == std.ascii.control_code.bs or byte == std.ascii.control_code.del) {
                 if (!line_overflowed and line_length > 0) {
                     line_length -= 1;
-                    write("\x08 \x08");
+                    write(&ERASE_PREVIOUS_CHARACTER);
                 }
                 continue;
             }
 
-            if (byte < 0x20 or byte > 0x7e) continue;
+            if (!std.ascii.isPrint(byte)) continue;
             if (line_length == line_buffer.len) {
                 line_overflowed = true;
                 continue;
