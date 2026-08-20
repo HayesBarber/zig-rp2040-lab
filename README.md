@@ -1,44 +1,46 @@
-# zig-rp2040-lab
+# Zig RP2040 Lab
 
-The goal of this repo is to build a preemptive scheduler in Zig for a Raspberry Pi Pico
+## Running the lab
 
-Zig version: 0.16.0
+Prerequisites:
+- Zig version: 0.16.0
+- [Picotool](https://github.com/raspberrypi/picotool) installed and on `$PATH`
 
-This is for learning purposes
+```zsh
+# Build the uf2 and load onto board (assuming board is connected and in bootsel mode)
+zig build load
+```
 
-### Datasheets
+## Description
 
-- [RP2040](https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008371-DS-1-rp2040-datasheet.pdf)
-- [Pico W](https://pip-assets.raspberrypi.com/categories/686-raspberry-pi-pico-w/documents/RP-008312-DS-1-pico-w-datasheet.pdf)
+The goal for this project was to build a bare metal CPU scheduler for the RP2040 in Zig.
 
-### Roadmap
+The `docs/` directory contains the chronological order of topics I covered in order to build it. As you can see, there were a lot of topics to cover before I even got to the first context switch.
 
-- [x] Boot Sequence
-- [x] SDK interop
-- [x] Picotool
-- [x] Timer interrupts
-- [x] Exception entry and register stacking
-- [x] PendSV interrupt
-- [x] Multicore
-- [x] Spinlocks
-- [x] Linker scripts
-- [x] crt0
-- [x] zrt0
-- [x] System clocks
-- [x] Serial communication
-- [x] Task registration API
-- [ ] Scheduler algorithm(s)
-  - [x] Super loop
-  - [x] Round robin
-  - [x] Multilevel Feedback Queue
-  - [ ] ...
-- [x] Context switch
-- [x] Task blocking
-- [ ] Telemetry
-- [ ] Synthetic workload / profiling
-- [x] Heap allocator
-- [x] Symmetric Multiprocessing
-- [ ] Mutual exclusion
-  - [x] Spin Lock
-  - [ ] Mutex
+This project was a lot of fun, and provided a sense of clarity to some topics that often get abstracted away.
+
+## Project Structure
+
+```txt
+./
+├── docs/          ->  Cumulative journal
+├── src/
+│   ├── boot/      ->  Second stage bootloader
+│   ├── core/      ->  HAL
+│   ├── kernal/    ->  Scheduler and kernel APIs
+│   └── main.zig   ->  Application code
+└── build.zig      ->  Builds the uf2
+```
+
+## References
+
+I provide links to references throughout the `docs/`, but these feel especially important:
+
+- [RP2040 Datasheet](https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008371-DS-1-rp2040-datasheet.pdf)
+- [Pico SDK](https://github.com/raspberrypi/pico-sdk)
+- [MicroZig](https://github.com/ZigEmbeddedGroup/microzig)
+- [V. Hunter Adams](https://vanhunteradams.com/)
+- [RPi-Pico-Baremetal](https://github.com/carlosftm/RPi-Pico-Baremetal)
+- [Pico Examples](https://github.com/raspberrypi/pico-examples)
+- [Life with David](https://github.com/LifeWithDavid/RaspberryPiPico-BareMetalAdventures)
 
