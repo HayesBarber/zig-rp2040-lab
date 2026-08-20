@@ -11,7 +11,11 @@ Prerequisites:
 zig build load
 ```
 
-The application code is a UART console. To listen to the serial port I use [picocom](https://github.com/npat-efault/picocom): `picocom -b 115200 /dev/cu.usbserial-0001`
+The application code is a UART console. To listen to the serial port I use [picocom](https://github.com/npat-efault/picocom): 
+
+```zsh
+picocom -b 115200 /dev/cu.usbserial-0001`
+```
 
 I also use a UART-to-USB adapter wired up to GND, GPIO-0 for RX, and GPIO-1 for TX.
 
